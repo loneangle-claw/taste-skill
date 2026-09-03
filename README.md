@@ -124,6 +124,7 @@ The `Install name` column is the exact value you pass to `--skill`.
 | **minimalist-skill** | `minimalist-ui` | Editorial product UI (Notion/Linear vibes), restrained palette, crisp structure. |
 | **brutalist-skill** | `industrial-brutalist-ui` | Hard mechanical language: Swiss type, sharp contrast, experimental layout. |
 | **stitch-skill** | `stitch-design-taste` | Google Stitch-compatible rules, including optional `DESIGN.md` export format. |
+| **ebook-generator** | `ebook-generator` | 🆕 End-to-end AI picture-book pipeline: topic → story JSON → Character Bible → Scene Bible → page plan → per-page image prompts → typeset spreads → HTML / PDF / EPUB. Built around character and scene consistency. |
 
 ### Image generation skills
 
@@ -144,6 +145,7 @@ These produce design images only (no code). Use with ChatGPT Images, Codex image
 - Use **redesign-skill** to improve an existing codebase instead of greenfield styling. 
 - Add **soft-skill**, **minimalist-skill**, or **brutalist-skill** when the visual direction is already chosen. 
 - Add **output-skill** if the agent keeps truncating output. 
+- Use **ebook-generator** when the deliverable is an illustrated book rather than an interface: it locks a Character Bible and a Scene Bible first, then generates one image per page and exports HTML, PDF, and EPUB. 
 - Use **imagegen-frontend-web**, **imagegen-frontend-mobile**, or **brandkit** when the deliverable is **images** (comps, flows, identity boards), then pass results to your coding agent.
 
 ### Image-first tip

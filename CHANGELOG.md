@@ -10,6 +10,7 @@ All notable changes to taste-skill live here. The repo follows SemVer-ish discip
 
 - `taste-skill` (install name `design-taste-frontend`) is now **v2 (experimental)**. The previous v1 is preserved as `taste-skill-v1` (install name `design-taste-frontend-v1`).
 - New `CHANGELOG.md` (this file).
+- New **`ebook-generator`** skill (install name `ebook-generator`): a full AI picture-book production pipeline. Ten stages from topic to export, with a locked Character Bible and Scene Bible as the consistency engine, a fixed-slot image prompt formula, a per-image QC gate, and HTML / PDF / EPUB output. Ships with `SCHEMAS.md` (artifact contracts) and `RENDER.md` (typesetting and export). Includes teacher mode, student authoring mode, narration scripts, comprehension sets, and single-page regeneration.
 
 ---
 
