@@ -207,7 +207,9 @@ function showResult(g, winner) {
 /* ── match start ────────────────────────────────────────── */
 
 function cpuCombo() {
-  const p = PRESETS[Math.floor(Math.random() * PRESETS.length)];
+  // Never mirror the player's layer: same-build matches are far less interesting.
+  const pool = PRESETS.filter((p) => p.layer !== state.combo.layer);
+  const p = (pool.length ? pool : PRESETS)[Math.floor(Math.random() * (pool.length || PRESETS.length))];
   return { layer: p.layer, disc: p.disc, driver: p.driver, spinDir: Math.random() < 0.35 ? -1 : 1 };
 }
 

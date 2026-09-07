@@ -27,6 +27,7 @@ export const TUNE = {
   steerCost: 0.40,    // spin per second burned while steering
   selfOutSpeed: 400,  // you can only ring yourself out at absurd speed
   launchGrace: 1.2,   // no ring-outs while the launch dive is still playing out
+  jitter: 0.16,       // contact-angle luck; keeps mirror matches from being perfectly symmetric
   spinDrag: 0.0007,   // extra spin decay per px/s of travel
 };
 
@@ -233,16 +234,19 @@ function collide(a, b, events) {
   const opposite = a.spec.spinDir !== b.spec.spinDir ? 1.35 : 1; // spin steal hurts both
   const base = impact * TUNE.damage * opposite;
   const ratio = (atk, def) => Math.pow((3 + atk) / (3 + def), TUNE.damageExp);
-  const dmgB = base * ratio(a.spec.attack, b.spec.defense);
-  const dmgA = base * ratio(b.spec.attack, a.spec.defense);
+  // Two identical tops would otherwise trade damage in lockstep forever and
+  // every mirror match would end in a draw, so each side rolls its own luck.
+  const luck = () => 1 - TUNE.jitter / 2 + Math.random() * TUNE.jitter;
+  const dmgB = base * ratio(a.spec.attack, b.spec.defense) * luck();
+  const dmgA = base * ratio(b.spec.attack, a.spec.defense) * luck();
   a.spin -= dmgA;
   b.spin -= dmgB;
 
   a.hitTimer = 1.2;
   b.hitTimer = 1.2;
 
-  b.burst += impact * TUNE.burstGain * ratio(a.spec.attack, b.spec.burstRes);
-  a.burst += impact * TUNE.burstGain * ratio(b.spec.attack, a.spec.burstRes);
+  b.burst += impact * TUNE.burstGain * ratio(a.spec.attack, b.spec.burstRes) * luck();
+  a.burst += impact * TUNE.burstGain * ratio(b.spec.attack, a.spec.burstRes) * luck();
 
   events.push({
     type: 'clash',
