@@ -1,0 +1,2117 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%234da3ff'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23e8eefc'/%3E%3C/svg%3E" />
+<title>戰鬥陀螺 ARENA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800&display=swap" />
+<style>
+:root {
+  --bg: #070a14;
+  --panel: rgba(18, 24, 44, 0.82);
+  --line: rgba(126, 160, 235, 0.18);
+  --ink: #e7edff;
+  --muted: #8ea0c9;
+  --p1: #4da3ff;
+  --p2: #ff6b8b;
+  --gold: #ffd166;
+  --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+body {
+  background-image:
+    radial-gradient(900px 600px at 15% -10%, rgba(77, 163, 255, 0.16), transparent 60%),
+    radial-gradient(800px 600px at 95% 10%, rgba(255, 107, 139, 0.12), transparent 60%);
+}
+
+kbd {
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  padding: 1px 6px;
+  font: inherit;
+  font-size: 0.85em;
+}
+
+.screen { display: none; min-height: 100%; padding: 28px 20px 40px; }
+.screen.active { display: block; }
+
+/* ── menu ─────────────────────────────────────────────── */
+.title { text-align: center; margin: 10px 0 26px; }
+.title h1 {
+  margin: 0;
+  font-size: clamp(30px, 6vw, 52px);
+  letter-spacing: 4px;
+}
+.title h1 span {
+  background: linear-gradient(90deg, var(--p1), var(--p2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.title p { color: var(--muted); margin: 8px 0 0; letter-spacing: 2px; }
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  backdrop-filter: blur(6px);
+}
+.panel h2 {
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  margin: 18px 0 10px;
+  text-transform: uppercase;
+}
+.panel h2:first-child { margin-top: 0; }
+
+.modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.mode {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+.mode strong { font-size: 15px; }
+.mode span { font-size: 12px; color: var(--muted); }
+.mode:hover { transform: translateY(-2px); border-color: rgba(126, 160, 235, 0.5); background: rgba(77, 163, 255, 0.1); }
+.mode:disabled { opacity: 0.45; cursor: not-allowed; }
+.mode:disabled:hover { transform: none; border-color: var(--line); background: rgba(255, 255, 255, 0.03); }
+.mode:focus-visible, .chip:focus-visible, .primary:focus-visible, .ghost:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.chip:hover { color: var(--ink); border-color: rgba(126, 160, 235, 0.45); }
+.chip.active { background: rgba(77, 163, 255, 0.18); border-color: var(--p1); color: #fff; }
+
+.help { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; line-height: 1.9; }
+.help b { color: var(--ink); }
+
+.garage { display: grid; gap: 12px; }
+.part-row { display: grid; gap: 6px; }
+.part-row label { font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+
+.spec { display: flex; gap: 16px; align-items: center; margin-top: 18px; }
+#preview { flex: 0 0 auto; }
+.stats { flex: 1; display: grid; gap: 8px; }
+.stat { display: grid; grid-template-columns: 42px 1fr 26px; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.stat .track { height: 7px; border-radius: 4px; background: rgba(255, 255, 255, 0.07); overflow: hidden; }
+.stat .track i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--p1), #9ad0ff); }
+.stat b { color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+
+.foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 22px; }
+.foot b { color: var(--gold); }
+
+/* ── lobby ────────────────────────────────────────────── */
+#screen-lobby { display: none; place-items: center; }
+#screen-lobby.active { display: grid; }
+.lobby { width: min(460px, 92vw); text-align: center; }
+.lobby-actions { display: grid; gap: 12px; margin: 8px 0 16px; }
+.join { display: flex; gap: 8px; }
+#join-code {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--ink);
+  font-size: 20px;
+  letter-spacing: 8px;
+  text-align: center;
+  text-transform: uppercase;
+}
+.primary {
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 0;
+  background: linear-gradient(90deg, var(--p1), #7bc0ff);
+  color: #05224a;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+}
+.primary:hover { filter: brightness(1.08); }
+.ghost {
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.ghost:hover { color: var(--ink); border-color: rgba(126, 160, 235, 0.5); }
+.room .code {
+  font-size: 44px;
+  letter-spacing: 12px;
+  font-weight: 700;
+  color: var(--gold);
+  margin: 4px 0;
+}
+.muted { color: var(--muted); font-size: 13px; }
+.error { color: #ff8090; font-size: 13px; min-height: 18px; }
+
+/* ── game ─────────────────────────────────────────────── */
+#screen-game { display: none; place-items: center; padding: 12px; }
+#screen-game.active { display: grid; }
+
+.arena-wrap {
+  position: relative;
+  width: min(92vw, 78vh);
+  aspect-ratio: 1;
+}
+#arena {
+  width: 100%;
+  height: 100%;
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  touch-action: none;
+  display: block;
+}
+.hud { position: absolute; inset: 0; pointer-events: none; }
+
+.hud-top {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px;
+  padding: 12px 14px;
+}
+.player { display: grid; gap: 5px; }
+.player.p2 { justify-items: end; }
+.pname { font-size: 13px; letter-spacing: 1px; }
+.p1 .pname { color: var(--p1); }
+.p2 .pname { color: var(--p2); }
+.bar {
+  width: min(190px, 32vw);
+  height: 8px;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.bar i { display: block; height: 100%; width: 100%; transition: width 0.08s linear; }
+.bar.spin i { background: linear-gradient(90deg, #4de3b0, #a6ffe3); }
+.bar.burst { height: 5px; }
+.bar.burst i { width: 0; background: linear-gradient(90deg, #ffb44d, #ff5470); }
+.dots { display: flex; gap: 5px; }
+.p2 .dots { flex-direction: row-reverse; }
+.dot { width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--line); background: rgba(0, 0, 0, 0.4); }
+.p1 .dot.on { background: var(--p1); box-shadow: 0 0 10px var(--p1); }
+.p2 .dot.on { background: var(--p2); box-shadow: 0 0 10px var(--p2); }
+
+.center { text-align: center; }
+.round { font-size: 11px; letter-spacing: 3px; color: var(--muted); }
+.timer { font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.launcher {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  text-align: center;
+  width: min(420px, 80%);
+}
+.launch-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.meter {
+  position: relative;
+  height: 16px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.meter i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #4de3b0, var(--gold), #ff5470);
+}
+.meter .sweet {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 82%;
+  width: 14%;
+  background: rgba(255, 255, 255, 0.14);
+  border-left: 1px solid rgba(255, 255, 255, 0.35);
+}
+.launch-sub { font-size: 12px; color: var(--muted); margin-top: 8px; min-height: 16px; }
+
+.banner {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  animation: pop 0.35s ease;
+}
+.banner-title { font-size: clamp(28px, 6vw, 54px); font-weight: 800; letter-spacing: 4px; text-shadow: 0 6px 30px rgba(0, 0, 0, 0.8); }
+.banner-sub { letter-spacing: 6px; color: var(--muted); margin-top: 6px; }
+@keyframes pop { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.result {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  gap: 12px;
+  background: rgba(6, 9, 20, 0.82);
+  border-radius: 24px;
+  pointer-events: auto;
+}
+.result-title { font-size: clamp(28px, 6vw, 48px); font-weight: 800; letter-spacing: 4px; }
+.result-score { font-size: 20px; color: var(--muted); letter-spacing: 4px; }
+.result-actions { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+
+.corner { position: absolute; right: 12px; bottom: 12px; pointer-events: auto; font-size: 12px; }
+
+[hidden] { display: none !important; }
+
+@media (max-width: 720px) {
+  .modes { grid-template-columns: 1fr; }
+  .arena-wrap { width: min(96vw, 70vh); }
+  .bar { width: min(130px, 30vw); }
+  .timer { font-size: 22px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ── 主選單 ───────────────────────────────────────────── -->
+<section id="screen-menu" class="screen active">
+  <header class="title">
+    <h1>戰鬥陀螺 <span>ARENA</span></h1>
+    <p>物理對戰 · 改裝陀螺 · 線上 1v1</p>
+  </header>
+
+  <div class="menu-grid">
+    <div class="panel">
+      <h2>對戰模式</h2>
+      <div class="modes">
+        <button class="mode" data-mode="solo">
+          <strong>單人挑戰</strong><span>對電腦</span>
+        </button>
+        <button class="mode" data-mode="local">
+          <strong>雙人同機</strong><span>同一鍵盤</span>
+        </button>
+        <button class="mode" data-mode="online">
+          <strong>線上對戰</strong><span>房號連線</span>
+        </button>
+      </div>
+
+      <h2>電腦難度</h2>
+      <div class="chips" id="difficulty">
+        <button class="chip" data-diff="easy">簡單</button>
+        <button class="chip active" data-diff="normal">普通</button>
+        <button class="chip" data-diff="hard">困難</button>
+      </div>
+
+      <h2>操作說明</h2>
+      <ul class="help">
+        <li><b>蓄力發射</b>：按住 <kbd>空白鍵</kbd>，量表衝到最高時放開</li>
+        <li><b>移動</b>：<kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 或方向鍵（也可用滑鼠/手指拖曳）</li>
+        <li><b>衝刺</b>：戰鬥中按 <kbd>空白鍵</kbd>，消耗迴轉力猛撞對手</li>
+        <li>雙人同機：2P 使用方向鍵 + <kbd>Enter</kbd></li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h2>陀螺改裝</h2>
+      <div class="chips" id="presets"></div>
+      <div class="garage">
+        <div class="part-row"><label>層片 Layer</label><div class="chips" id="pick-layer"></div></div>
+        <div class="part-row"><label>圓盤 Disc</label><div class="chips" id="pick-disc"></div></div>
+        <div class="part-row"><label>軸心 Driver</label><div class="chips" id="pick-driver"></div></div>
+        <div class="part-row"><label>旋轉方向</label>
+          <div class="chips" id="pick-spin">
+            <button class="chip active" data-spin="1">右旋</button>
+            <button class="chip" data-spin="-1">左旋</button>
+          </div>
+        </div>
+      </div>
+      <div class="spec">
+        <canvas id="preview" width="180" height="180"></canvas>
+        <div class="stats" id="stats"></div>
+      </div>
+    </div>
+  </div>
+  <p class="foot">勝利條件：先拿到 <b>4 分</b>。迴轉結束 +1 · 場外結束 +2 · 爆裂結束 +3</p>
+</section>
+
+<!-- ── 線上大廳 ─────────────────────────────────────────── -->
+<section id="screen-lobby" class="screen">
+  <div class="panel lobby">
+    <h2>線上對戰</h2>
+    <div class="lobby-actions">
+      <button class="primary" id="btn-create">建立房間</button>
+      <div class="join">
+        <input id="join-code" maxlength="4" placeholder="房號" autocomplete="off" />
+        <button class="primary" id="btn-join">加入</button>
+      </div>
+    </div>
+    <div class="room" id="room-info" hidden>
+      <p>房號</p>
+      <div class="code" id="room-code">----</div>
+      <p class="muted" id="room-status">等待對手加入…</p>
+    </div>
+    <p class="error" id="lobby-error"></p>
+    <button class="ghost" id="btn-lobby-back">返回</button>
+  </div>
+</section>
+
+<!-- ── 戰鬥畫面 ─────────────────────────────────────────── -->
+<section id="screen-game" class="screen">
+  <div class="arena-wrap">
+    <canvas id="arena" width="900" height="900"></canvas>
+
+    <div class="hud">
+      <div class="hud-top">
+        <div class="player p1">
+          <div class="pname" id="p1-name">玩家 1</div>
+          <div class="bar spin"><i id="p1-spin"></i></div>
+          <div class="bar burst"><i id="p1-burst"></i></div>
+          <div class="dots" id="p1-dots"></div>
+        </div>
+        <div class="center">
+          <div class="round" id="round-label">ROUND 1</div>
+          <div class="timer" id="timer">90</div>
+        </div>
+        <div class="player p2">
+          <div class="pname" id="p2-name">玩家 2</div>
+          <div class="bar spin"><i id="p2-spin"></i></div>
+          <div class="bar burst"><i id="p2-burst"></i></div>
+          <div class="dots" id="p2-dots"></div>
+        </div>
+      </div>
+
+      <div class="launcher" id="launcher">
+        <div class="launch-label">按住 <kbd>空白鍵</kbd> 蓄力，放開發射</div>
+        <div class="meter"><i id="meter-fill"></i><span class="sweet"></span></div>
+        <div class="launch-sub" id="launch-sub"></div>
+      </div>
+
+      <div class="banner" id="banner" hidden>
+        <div class="banner-title" id="banner-title"></div>
+        <div class="banner-sub" id="banner-sub"></div>
+      </div>
+
+      <div class="result" id="result" hidden>
+        <div class="result-title" id="result-title"></div>
+        <div class="result-score" id="result-score"></div>
+        <div class="result-actions">
+          <button class="primary" id="btn-rematch">再戰一場</button>
+          <button class="ghost" id="btn-quit">回到選單</button>
+        </div>
+      </div>
+
+      <button class="ghost corner" id="btn-back">離開</button>
+    </div>
+  </div>
+</section>
+
+<script>window.__STATIC_BUILD = true;</script>
+<script type="module">
+// ---- parts.js ----
+// Part catalogue. A top is Layer + Disc + Driver; stats are the sum of the three.
+// Ratings are on a 0-10 scale and get converted to physics numbers in buildSpec().
+
+const LAYERS = [
+  { id: 'valkyr',  name: '瓦爾凱',   kind: 'attack',  attack: 6, defense: 2, stamina: 2, burstRes: 2, blades: 3, color: '#3f8cff', accent: '#bfe0ff' },
+  { id: 'aegis',   name: '神盾',     kind: 'defense', attack: 1, defense: 5, stamina: 3, burstRes: 4, blades: 8, color: '#ff5f6d', accent: '#ffc2c6' },
+  { id: 'perpeta', name: '永動',     kind: 'stamina', attack: 1, defense: 3, stamina: 7, burstRes: 2, blades: 6, color: '#31d0aa', accent: '#c4fff0' },
+  { id: 'equinox', name: '均衡',     kind: 'balance', attack: 3, defense: 3, stamina: 3, burstRes: 3, blades: 5, color: '#c07bff', accent: '#e8d4ff' },
+  { id: 'ripper',  name: '裂空',     kind: 'attack',  attack: 7, defense: 1, stamina: 1, burstRes: 1, blades: 2, color: '#ffa53f', accent: '#ffe2bb' },
+];
+
+const DISCS = [
+  { id: 'light',   name: '輕量盤',   weight: 1.0, attack: 2, defense: 0, stamina: 2, burstRes: 0, size: 0 },
+  { id: 'heavy',   name: '重量盤',   weight: 1.45, attack: 1, defense: 2, stamina: 1, burstRes: 1, size: 3 },
+  { id: 'guard',   name: '護盾盤',   weight: 1.3, attack: 0, defense: 3, stamina: 1, burstRes: 2, size: 4 },
+  { id: 'ring',    name: '外環盤',   weight: 1.35, attack: 1, defense: 1, stamina: 4, burstRes: 0, size: 2 },
+];
+
+const DRIVERS = [
+  // grip = how much sideways control the player gets. drag = floor friction.
+  { id: 'flat',    name: '平軸',     grip: 1.35, drag: 0.30, attack: 3, defense: 0, stamina: 1, burstRes: 0 },
+  { id: 'rubber',  name: '橡膠軸',   grip: 1.6,  drag: 0.46, attack: 4, defense: 0, stamina: -1, burstRes: 1 },
+  { id: 'defense', name: '防禦軸',   grip: 0.7,  drag: 0.40, attack: 0, defense: 3, stamina: 1, burstRes: 2 },
+  { id: 'needle',  name: '尖針軸',   grip: 0.55, drag: 0.22, attack: 0, defense: 1, stamina: 3, burstRes: 0 },
+  { id: 'orb',     name: '圓珠軸',   grip: 0.85, drag: 0.26, attack: 1, defense: 2, stamina: 3, burstRes: 0 },
+];
+
+const PRESETS = [
+  { name: '衝鋒型', layer: 'valkyr',  disc: 'light', driver: 'flat' },
+  { name: '鐵壁型', layer: 'aegis',   disc: 'guard', driver: 'defense' },
+  { name: '持久型', layer: 'perpeta', disc: 'ring',  driver: 'needle' },
+  { name: '全能型', layer: 'equinox', disc: 'heavy', driver: 'orb' },
+];
+
+const byId = (list, id) => list.find((p) => p.id === id) || list[0];
+
+/**
+ * Turn a part combo into the numbers the physics engine actually uses.
+ * @param {{layer:string, disc:string, driver:string, spinDir?:number}} combo
+ */
+function buildSpec(combo) {
+  const layer = byId(LAYERS, combo.layer);
+  const disc = byId(DISCS, combo.disc);
+  const driver = byId(DRIVERS, combo.driver);
+
+  const attack = layer.attack + disc.attack + driver.attack;
+  const defense = layer.defense + disc.defense + driver.defense;
+  const stamina = layer.stamina + disc.stamina + driver.stamina;
+  const burstRes = layer.burstRes + disc.burstRes + driver.burstRes;
+
+  return {
+    parts: { layer: layer.id, disc: disc.id, driver: driver.id },
+    name: `${layer.name}${disc.name}${driver.name}`,
+    kind: layer.kind,
+    color: layer.color,
+    accent: layer.accent,
+    blades: layer.blades,
+    attack, defense, stamina, burstRes,
+    mass: disc.weight,
+    radius: 26 + disc.size,
+    grip: driver.grip,
+    drag: driver.drag,
+    // A stamina build bleeds spin roughly half as fast as a pure attacker,
+    // but the gap is small enough that hits, not the clock, decide most battles.
+    spinDecay: 1.30 / (0.62 + stamina * 0.06),
+    spinDir: combo.spinDir === -1 ? -1 : 1,
+  };
+}
+
+function statBars(spec) {
+  return [
+    ['攻擊', spec.attack, 14],
+    ['防禦', spec.defense, 14],
+    ['持久', spec.stamina, 14],
+    ['抗爆', spec.burstRes, 12],
+  ];
+}
+
+/* ── colour separation ─────────────────────────────────────
+   Two players can pick the same layer, so side 1 gets its hue rotated when the
+   two builds would otherwise be indistinguishable on the arena floor. */
+
+function hexToHsl(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = ((n >> 16) & 255) / 255;
+  const g = ((n >> 8) & 255) / 255;
+  const b = (n & 255) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  if (max === min) return [0, 0, l];
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h;
+  if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+  else if (max === g) h = ((b - r) / d + 2) / 6;
+  else h = ((r - g) / d + 4) / 6;
+  return [h * 360, s, l];
+}
+
+const hsl = ([h, s, l], shift, dl = 0) =>
+  `hsl(${(h + shift + 360) % 360} ${Math.round(s * 100)}% ${Math.round(Math.min(0.92, l + dl) * 100)}%)`;
+
+function separateColors(specA, specB) {
+  const a = hexToHsl(specA.color);
+  const b = hexToHsl(specB.color);
+  const gap = Math.abs(((a[0] - b[0] + 540) % 360) - 180);
+  if (gap > 45) return;
+  const shift = 165;
+  specB.color = hsl(b, shift);
+  specB.accent = hsl(b, shift, 0.28);
+}
+
+
+// ---- physics.js ----
+// Headless battle simulation. No DOM access here so it can also run under Node
+// for tests and, in online play, on the host client as the authority.
+
+const ARENA = {
+  cx: 450,
+  cy: 450,
+  R: 360,          // rim radius
+  escapeSpeed: 100, // outward speed needed to fly out of the stadium
+};
+
+// All battle balance lives here so it can be swept by scripts/balance.mjs.
+const TUNE = {
+  bowlG: 1000,        // inward pull at the rim (px/s^2)
+  bowlExp: 2.0,       // shallow in the middle, steep at the wall
+  precession: 0.45,   // rad/s of orbital curl caused by the spin
+  steerAcc: 420,      // px/s^2 available to the player, scaled by driver grip
+  dashImpulse: 250,
+  dashCost: 6,
+  dashCooldown: 3.2,
+  roundTime: 90,
+  restitution: 0.6,
+  shove: 78,          // knockback the higher-attack top applies
+  damage: 0.038,      // spin lost per unit of impact speed
+  damageExp: 1.4,     // how sharply an attack/defense mismatch is punished
+  burstGain: 0.046,
+  burstDecay: 0.8,
+  steerCost: 0.40,    // spin per second burned while steering
+  selfOutSpeed: 400,  // you can only ring yourself out at absurd speed
+  launchGrace: 1.2,   // no ring-outs while the launch dive is still playing out
+  jitter: 0.16,       // contact-angle luck; keeps mirror matches from being perfectly symmetric
+  spinDrag: 0.0007,   // extra spin decay per px/s of travel
+};
+
+const POINTS = { spin: 1, ring: 2, burst: 3, timeout: 1 };
+
+const len = (x, y) => Math.hypot(x, y);
+const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
+
+function createTop(spec, side) {
+  return {
+    spec,
+    side,
+    x: ARENA.cx, y: ARENA.cy,
+    vx: 0, vy: 0,
+    spin: 100,
+    burst: 0,
+    angle: Math.random() * Math.PI * 2,
+    alive: true,
+    outReason: null,
+    dashCd: 0,
+    hitTimer: 0,
+    grace: 0,
+    launched: false,
+    input: { x: 0, y: 0, dash: false },
+  };
+}
+
+/**
+ * Put a top on the rim and fire it into the stadium.
+ * @param {number} power 0..1 launcher charge
+ * @param {number} aim   -1..1 shifts the entry angle (steeper = more aggressive)
+ */
+function launchTop(top, power, aim = 0) {
+  const side = top.side === 0 ? Math.PI * 0.82 : -Math.PI * 0.18;
+  const r = ARENA.R * 0.82;
+  top.x = ARENA.cx + Math.cos(side) * r;
+  top.y = ARENA.cy + Math.sin(side) * r;
+
+  const toCenter = Math.atan2(ARENA.cy - top.y, ARENA.cx - top.x);
+  const curl = top.spec.spinDir * (Math.PI * 0.30 + aim * Math.PI * 0.14);
+  const dir = toCenter + curl;
+  const speed = 200 + 260 * clamp(power, 0, 1);
+
+  top.vx = Math.cos(dir) * speed;
+  top.vy = Math.sin(dir) * speed;
+  top.spin = 82 + 18 * clamp(power, 0, 1);
+  top.grace = TUNE.launchGrace;
+  top.burst = 0;
+  top.alive = true;
+  top.outReason = null;
+  top.dashCd = 0;
+  top.launched = true;
+}
+
+function createBattle(specA, specB) {
+  return {
+    tops: [createTop(specA, 0), createTop(specB, 1)],
+    time: 0,
+    timeLeft: TUNE.roundTime,
+    phase: 'launch', // launch -> battle -> result
+    result: null,    // { winner: 0|1|-1, reason, points }
+    events: [],
+  };
+}
+
+function integrate(top, dt, other) {
+  const dx = top.x - ARENA.cx;
+  const dy = top.y - ARENA.cy;
+  const dist = len(dx, dy) || 0.0001;
+  const nx = dx / dist;
+  const ny = dy / dist;
+
+  const spinFactor = clamp(top.spin / 100, 0, 1);
+
+  // Bowl floor pulls everything back toward the middle.
+  const slope = TUNE.bowlG * Math.pow(dist / ARENA.R, TUNE.bowlExp);
+  let ax = -nx * slope;
+  let ay = -ny * slope;
+
+  // A spinning top does not travel straight: curl the velocity.
+  const curl = top.spec.spinDir * TUNE.precession * spinFactor;
+  ax += -top.vy * curl;
+  ay += top.vx * curl;
+
+  // Player / AI steering. Costs a little spin, and fades as the top slows down.
+  const ix = top.input.x;
+  const iy = top.input.y;
+  const im = len(ix, iy);
+  if (im > 0.01) {
+    const s = TUNE.steerAcc * top.spec.grip * spinFactor / Math.max(1, im);
+    ax += ix * s;
+    ay += iy * s;
+    top.spin -= TUNE.steerCost * Math.min(1, im) * dt;
+  }
+
+  // Dash: a committed lunge at the opponent.
+  top.dashCd = Math.max(0, top.dashCd - dt);
+  top.hitTimer = Math.max(0, top.hitTimer - dt);
+  top.grace = Math.max(0, top.grace - dt);
+  if (top.input.dash && top.dashCd <= 0 && top.spin > TUNE.dashCost + 2) {
+    const ddx = other.x - top.x;
+    const ddy = other.y - top.y;
+    const d = len(ddx, ddy) || 1;
+    const power = TUNE.dashImpulse * (0.6 + top.spec.attack * 0.05);
+    top.vx += (ddx / d) * power;
+    top.vy += (ddy / d) * power;
+    top.spin -= TUNE.dashCost;
+    top.dashCd = TUNE.dashCooldown;
+    return { dash: { x: top.x, y: top.y, side: top.side } };
+  }
+  top.input.dash = false;
+
+  top.vx += ax * dt;
+  top.vy += ay * dt;
+
+  const damp = Math.exp(-top.spec.drag * dt);
+  top.vx *= damp;
+  top.vy *= damp;
+
+  top.x += top.vx * dt;
+  top.y += top.vy * dt;
+
+  const speed = len(top.vx, top.vy);
+  top.spin -= top.spec.spinDecay * (1 + speed * TUNE.spinDrag) * dt;
+  top.burst = Math.max(0, top.burst - TUNE.burstDecay * dt);
+  top.angle += top.spec.spinDir * (2 + spinFactor * 26) * dt;
+  return null;
+}
+
+function wall(top, events) {
+  const dx = top.x - ARENA.cx;
+  const dy = top.y - ARENA.cy;
+  const dist = len(dx, dy);
+  const limit = ARENA.R - top.spec.radius * 0.35;
+  if (dist < limit) return;
+
+  const nx = dx / dist;
+  const ny = dy / dist;
+  const outward = top.vx * nx + top.vy * ny;
+
+  const knocked = top.hitTimer > 0 || outward > TUNE.selfOutSpeed;
+  if (outward > ARENA.escapeSpeed && knocked && top.grace <= 0) {
+    top.alive = false;
+    top.outReason = 'ring';
+    events.push({ type: 'ringout', side: top.side, x: top.x, y: top.y });
+    return;
+  }
+  // Bounce off the rim and shed a bit of spin on the scrape.
+  top.x = ARENA.cx + nx * limit;
+  top.y = ARENA.cy + ny * limit;
+  top.vx -= 1.55 * outward * nx;
+  top.vy -= 1.55 * outward * ny;
+  top.spin -= Math.max(0, outward) * 0.004;
+  if (outward > 90) events.push({ type: 'scrape', x: top.x, y: top.y, power: outward });
+}
+
+function collide(a, b, events) {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const dist = len(dx, dy) || 0.0001;
+  const minDist = a.spec.radius + b.spec.radius;
+  if (dist >= minDist) return;
+
+  const nx = dx / dist;
+  const ny = dy / dist;
+
+  // Separate them so they do not stick together.
+  const overlap = minDist - dist;
+  const totalMass = a.spec.mass + b.spec.mass;
+  a.x -= nx * overlap * (b.spec.mass / totalMass);
+  a.y -= ny * overlap * (b.spec.mass / totalMass);
+  b.x += nx * overlap * (a.spec.mass / totalMass);
+  b.y += ny * overlap * (a.spec.mass / totalMass);
+
+  const rvn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+  if (rvn > 0) return; // already separating
+
+  const j = (-(1 + TUNE.restitution) * rvn) / (1 / a.spec.mass + 1 / b.spec.mass);
+  a.vx -= (j / a.spec.mass) * nx;
+  a.vy -= (j / a.spec.mass) * ny;
+  b.vx += (j / b.spec.mass) * nx;
+  b.vy += (j / b.spec.mass) * ny;
+
+  // The harder-hitting top also shoves the other one: this is what wins ring-outs.
+  const powerA = a.spec.attack * (a.spin / 100);
+  const powerB = b.spec.attack * (b.spin / 100);
+  // The stronger top drives the weaker one outward; the attacker only recoils
+  // slightly. Written symmetrically so neither side gets a free advantage.
+  const diff = powerA - powerB;
+  const mag = Math.abs(diff) * TUNE.shove;
+  if (diff >= 0) {
+    b.vx += nx * mag;
+    b.vy += ny * mag;
+    a.vx -= nx * mag * 0.2;
+    a.vy -= ny * mag * 0.2;
+  } else {
+    a.vx -= nx * mag;
+    a.vy -= ny * mag;
+    b.vx += nx * mag * 0.2;
+    b.vy += ny * mag * 0.2;
+  }
+
+  const impact = Math.abs(rvn);
+  const opposite = a.spec.spinDir !== b.spec.spinDir ? 1.35 : 1; // spin steal hurts both
+  const base = impact * TUNE.damage * opposite;
+  const ratio = (atk, def) => Math.pow((3 + atk) / (3 + def), TUNE.damageExp);
+  // Two identical tops would otherwise trade damage in lockstep forever and
+  // every mirror match would end in a draw, so each side rolls its own luck.
+  const luck = () => 1 - TUNE.jitter / 2 + Math.random() * TUNE.jitter;
+  const dmgB = base * ratio(a.spec.attack, b.spec.defense) * luck();
+  const dmgA = base * ratio(b.spec.attack, a.spec.defense) * luck();
+  a.spin -= dmgA;
+  b.spin -= dmgB;
+
+  a.hitTimer = 1.2;
+  b.hitTimer = 1.2;
+
+  b.burst += impact * TUNE.burstGain * ratio(a.spec.attack, b.spec.burstRes) * luck();
+  a.burst += impact * TUNE.burstGain * ratio(b.spec.attack, a.spec.burstRes) * luck();
+
+  events.push({
+    type: 'clash',
+    x: a.x + nx * a.spec.radius,
+    y: a.y + ny * a.spec.radius,
+    power: impact,
+    nx, ny,
+  });
+}
+
+function finish(battle, winner, reason) {
+  battle.phase = 'result';
+  battle.result = { winner, reason, points: winner < 0 ? 0 : POINTS[reason] };
+  battle.events.push({ type: 'finish', winner, reason });
+}
+
+/** Advance the battle by dt seconds. Returns the events produced this step. */
+function stepBattle(battle, dt) {
+  battle.events = [];
+  if (battle.phase !== 'battle') return battle.events;
+
+  const [a, b] = battle.tops;
+  battle.time += dt;
+  battle.timeLeft = Math.max(0, battle.timeLeft - dt);
+
+  // Both tops read the same pre-step positions, otherwise whichever moves first
+  // gets a small but measurable advantage when aiming its dash.
+  const prev = battle.tops.map((t) => ({ x: t.x, y: t.y, vx: t.vx, vy: t.vy }));
+  for (let i = 0; i < battle.tops.length; i++) {
+    const t = battle.tops[i];
+    if (!t.alive) continue;
+    const ev = integrate(t, dt, prev[1 - i]);
+    if (ev && ev.dash) battle.events.push({ type: 'dash', ...ev.dash });
+    wall(t, battle.events);
+  }
+  if (a.alive && b.alive) collide(a, b, battle.events);
+
+  for (const t of battle.tops) {
+    if (!t.alive) continue;
+    if (t.burst >= 100) {
+      t.alive = false;
+      t.outReason = 'burst';
+      battle.events.push({ type: 'burst', side: t.side, x: t.x, y: t.y });
+    } else if (t.spin <= 0) {
+      t.spin = 0;
+      t.alive = false;
+      t.outReason = 'spin';
+      battle.events.push({ type: 'spinout', side: t.side, x: t.x, y: t.y });
+    }
+  }
+
+  if (!a.alive && !b.alive) {
+    // Double knock-out: the top that was closer to surviving takes the round.
+    const score = (t) => (t.outReason === 'burst' ? -1000 : 0) + t.spin - t.burst * 0.01;
+    const sa = score(a);
+    const sb = score(b);
+    const reason = (sa > sb ? b : a).outReason;
+    finish(battle, Math.abs(sa - sb) < 1e-6 ? -1 : sa > sb ? 0 : 1, reason === 'ring' ? 'ring' : reason);
+  } else if (!a.alive) {
+    finish(battle, 1, a.outReason);
+  } else if (!b.alive) {
+    finish(battle, 0, b.outReason);
+  } else if (battle.timeLeft <= 0) {
+    if (Math.abs(a.spin - b.spin) < 1) finish(battle, -1, 'timeout');
+    else finish(battle, a.spin > b.spin ? 0 : 1, 'timeout');
+  }
+
+  return battle.events;
+}
+
+/** Compact snapshot used by the online host to sync the guest. */
+function snapshot(battle) {
+  return {
+    t: battle.time,
+    tl: battle.timeLeft,
+    ph: battle.phase,
+    rs: battle.result,
+    tops: battle.tops.map((t) => [
+      Math.round(t.x * 10) / 10, Math.round(t.y * 10) / 10,
+      Math.round(t.vx), Math.round(t.vy),
+      Math.round(t.spin * 10) / 10, Math.round(t.burst * 10) / 10,
+      Math.round(t.angle * 100) / 100, t.alive ? 1 : 0, Math.round(t.dashCd * 10) / 10,
+    ]),
+  };
+}
+
+function applySnapshot(battle, s) {
+  battle.time = s.t;
+  battle.timeLeft = s.tl;
+  battle.phase = s.ph;
+  battle.result = s.rs;
+  s.tops.forEach((d, i) => {
+    const t = battle.tops[i];
+    t.x = d[0]; t.y = d[1]; t.vx = d[2]; t.vy = d[3];
+    t.spin = d[4]; t.burst = d[5]; t.angle = d[6]; t.alive = !!d[7]; t.dashCd = d[8];
+  });
+}
+
+
+// ---- ai.js ----
+// CPU opponent. It only ever writes to `me.input`, exactly like a human player,
+// so nothing here can cheat the physics.
+
+
+const LEVELS = {
+  easy:   { react: 0.34, noise: 0.55, aggression: 0.55, dashRange: 90,  skill: 0.45 },
+  normal: { react: 0.18, noise: 0.30, aggression: 0.80, dashRange: 130, skill: 0.75 },
+  hard:   { react: 0.08, noise: 0.12, aggression: 1.00, dashRange: 175, skill: 1.00 },
+};
+
+function createAI(level = 'normal') {
+  return { cfg: LEVELS[level] || LEVELS.normal, timer: 0, aim: { x: 0, y: 0 }, level };
+}
+
+function aiLaunch(ai) {
+  // Better CPUs charge the launcher closer to full power.
+  const s = ai.cfg.skill;
+  return {
+    power: 0.55 + 0.45 * s * (0.75 + Math.random() * 0.25),
+    aim: (Math.random() * 2 - 1) * (1 - s) * 0.8,
+  };
+}
+
+function think(ai, me, foe, dt) {
+  ai.timer -= dt;
+  if (ai.timer > 0) {
+    me.input.x = ai.aim.x;
+    me.input.y = ai.aim.y;
+    return;
+  }
+  ai.timer = ai.cfg.react;
+
+  const dx = foe.x - me.x;
+  const dy = foe.y - me.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  const ux = dx / dist;
+  const uy = dy / dist;
+
+  const cx = ARENA.cx - me.x;
+  const cy = ARENA.cy - me.y;
+  const cd = Math.hypot(cx, cy) || 1;
+
+  const kind = me.spec.kind;
+  const losing = me.spin < foe.spin * 0.75;
+  const nearRim = cd > ARENA.R * 0.72;
+
+  let wx = 0;
+  let wy = 0;
+
+  if (kind === 'attack' || (kind === 'balance' && !losing)) {
+    // Chase, but lead the target a little so the hit lands.
+    const lead = 0.32 * ai.cfg.skill;
+    wx = (dx + foe.vx * lead) / dist;
+    wy = (dy + foe.vy * lead) / dist;
+  } else if (kind === 'defense') {
+    // Hold the middle; meet the attacker head-on when it commits.
+    const incoming = -(foe.vx * ux + foe.vy * uy);
+    wx = (cx / cd) * 0.8 + (incoming > 180 ? ux * 0.6 : 0);
+    wy = (cy / cd) * 0.8 + (incoming > 180 ? uy * 0.6 : 0);
+  } else {
+    // Stamina / losing: sit near the centre and slide away from contact.
+    const flee = dist < 190 ? 0.9 : 0.15;
+    wx = (cx / cd) * 0.85 - ux * flee;
+    wy = (cy / cd) * 0.85 - uy * flee;
+  }
+
+  if (nearRim) {
+    // Never let the CPU drift into its own ring-out.
+    wx += (cx / cd) * 1.1;
+    wy += (cy / cd) * 1.1;
+  }
+
+  wx += (Math.random() * 2 - 1) * ai.cfg.noise;
+  wy += (Math.random() * 2 - 1) * ai.cfg.noise;
+
+  const m = Math.hypot(wx, wy) || 1;
+  ai.aim.x = (wx / m) * ai.cfg.aggression;
+  ai.aim.y = (wy / m) * ai.cfg.aggression;
+  me.input.x = ai.aim.x;
+  me.input.y = ai.aim.y;
+
+  const closing = (foe.vx - me.vx) * -ux + (foe.vy - me.vy) * -uy;
+  const wantsDash = kind === 'attack' || kind === 'balance' || me.spin > foe.spin * 1.3;
+  if (wantsDash && me.dashCd <= 0 && dist < ai.cfg.dashRange && closing > -60 && Math.random() < ai.cfg.skill) {
+    me.input.dash = true;
+  }
+}
+
+
+// ---- render.js ----
+// Canvas renderer. Owns nothing about the rules - it draws whatever battle
+// state it is handed, plus its own particles, trails and screen shake.
+
+
+const TAU = Math.PI * 2;
+
+function createRenderer(canvas) {
+  const ctx = canvas.getContext('2d');
+  return {
+    canvas,
+    ctx,
+    trails: [[], []],
+    particles: [],
+    shake: 0,
+    flash: 0,
+    flashColor: '#ffffff',
+    time: 0,
+  };
+}
+
+function resetFx(r) {
+  r.trails = [[], []];
+  r.particles.length = 0;
+  r.shake = 0;
+  r.flash = 0;
+}
+
+function spark(r, x, y, color, opts = {}) {
+  const count = opts.count || 10;
+  for (let i = 0; i < count; i++) {
+    const a = opts.angle !== undefined
+      ? opts.angle + (Math.random() - 0.5) * (opts.spread || 1.6)
+      : Math.random() * TAU;
+    const speed = (opts.speed || 180) * (0.35 + Math.random() * 0.9);
+    r.particles.push({
+      x, y,
+      vx: Math.cos(a) * speed,
+      vy: Math.sin(a) * speed,
+      life: opts.life || 0.5,
+      max: opts.life || 0.5,
+      size: opts.size || 2.4,
+      color,
+      gravity: opts.gravity || 0,
+    });
+  }
+}
+
+/** Feed physics events to the renderer so it can react with juice. */
+function handleEvents(r, events, tops) {
+  for (const e of events) {
+    if (e.type === 'clash') {
+      const p = Math.min(1, e.power / 420);
+      spark(r, e.x, e.y, '#fff3c4', { count: 8 + Math.round(p * 18), speed: 120 + p * 380, life: 0.35 + p * 0.3, size: 1.6 + p * 2 });
+      r.shake = Math.min(22, r.shake + 4 + p * 16);
+    } else if (e.type === 'scrape') {
+      spark(r, e.x, e.y, '#9fd8ff', { count: 4, speed: 90, life: 0.25, size: 1.4 });
+    } else if (e.type === 'dash') {
+      const t = tops[e.side];
+      spark(r, e.x, e.y, t.spec.accent, { count: 14, speed: 220, life: 0.4, size: 2 });
+    } else if (e.type === 'ringout') {
+      spark(r, e.x, e.y, '#ffd166', { count: 46, speed: 460, life: 0.9, size: 3, gravity: 260 });
+      r.shake = 26;
+      r.flash = 0.5;
+      r.flashColor = '#ffd166';
+    } else if (e.type === 'burst') {
+      spark(r, e.x, e.y, '#ff6b8b', { count: 70, speed: 560, life: 1.1, size: 3.4 });
+      r.shake = 30;
+      r.flash = 0.7;
+      r.flashColor = '#ff6b8b';
+    } else if (e.type === 'spinout') {
+      spark(r, e.x, e.y, '#8fa3c8', { count: 20, speed: 120, life: 0.8, size: 2 });
+    }
+  }
+}
+
+function drawArena(ctx, t) {
+  const { cx, cy, R } = ARENA;
+
+  const bowl = ctx.createRadialGradient(cx, cy - R * 0.25, R * 0.1, cx, cy, R);
+  bowl.addColorStop(0, '#1b2440');
+  bowl.addColorStop(0.55, '#141b31');
+  bowl.addColorStop(1, '#0b1020');
+  ctx.fillStyle = bowl;
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, TAU);
+  ctx.fill();
+
+  // Contour rings.
+  ctx.lineWidth = 1;
+  for (let i = 1; i <= 6; i++) {
+    const rr = (R * i) / 6.6;
+    ctx.strokeStyle = `rgba(120,160,255,${0.05 + i * 0.012})`;
+    ctx.beginPath();
+    ctx.arc(cx, cy, rr, 0, TAU);
+    ctx.stroke();
+  }
+
+  // Slowly rotating guide spokes: sells the idea of a spinning stadium.
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(t * 0.06);
+  ctx.strokeStyle = 'rgba(120,160,255,0.06)';
+  for (let i = 0; i < 12; i++) {
+    ctx.beginPath();
+    ctx.rotate(TAU / 12);
+    ctx.moveTo(R * 0.18, 0);
+    ctx.lineTo(R * 0.95, 0);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Rim.
+  ctx.lineWidth = 14;
+  ctx.strokeStyle = '#0e1526';
+  ctx.beginPath();
+  ctx.arc(cx, cy, R + 4, 0, TAU);
+  ctx.stroke();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = 'rgba(140,190,255,0.35)';
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, TAU);
+  ctx.stroke();
+
+  // Centre marker.
+  ctx.strokeStyle = 'rgba(140,190,255,0.18)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 26, 0, TAU);
+  ctx.stroke();
+}
+
+function drawTrail(ctx, trail, color) {
+  if (trail.length < 2) return;
+  ctx.lineCap = 'round';
+  for (let i = 1; i < trail.length; i++) {
+    const a = i / trail.length;
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = a * 0.35;
+    ctx.lineWidth = 1 + a * 7;
+    ctx.beginPath();
+    ctx.moveTo(trail[i - 1].x, trail[i - 1].y);
+    ctx.lineTo(trail[i].x, trail[i].y);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawTop(ctx, top, t) {
+  const { spec } = top;
+  const spinFactor = Math.max(0, Math.min(1, top.spin / 100));
+  const r = spec.radius;
+
+  ctx.save();
+  ctx.translate(top.x, top.y);
+
+  // Contact shadow.
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.beginPath();
+  ctx.ellipse(2, 5, r * 0.95, r * 0.75, 0, 0, TAU);
+  ctx.fill();
+
+  // Motion blur disc: faster spin means a smoother, brighter ring.
+  ctx.globalAlpha = 0.25 + spinFactor * 0.35;
+  const glow = ctx.createRadialGradient(0, 0, r * 0.2, 0, 0, r * 1.5);
+  glow.addColorStop(0, spec.color);
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 1.5, 0, TAU);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  ctx.rotate(top.angle);
+
+  // Energy layer: one wedge per blade.
+  ctx.beginPath();
+  for (let i = 0; i <= spec.blades; i++) {
+    const a = (i / spec.blades) * TAU;
+    const outer = r;
+    const inner = r * 0.55;
+    ctx.lineTo(Math.cos(a) * outer, Math.sin(a) * outer);
+    ctx.lineTo(Math.cos(a + TAU / spec.blades / 2) * inner, Math.sin(a + TAU / spec.blades / 2) * inner);
+  }
+  ctx.closePath();
+  ctx.fillStyle = spec.color;
+  ctx.fill();
+  ctx.strokeStyle = spec.accent;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Forge disc.
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.6, 0, TAU);
+  ctx.fillStyle = '#e8eefc';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.45, 0, TAU);
+  ctx.fillStyle = spec.accent;
+  ctx.fill();
+
+  // Driver tip.
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.16, 0, TAU);
+  ctx.fillStyle = '#101827';
+  ctx.fill();
+
+  ctx.restore();
+
+  // Burst gauge arc: the ring tightening around a top about to pop.
+  if (top.burst > 3) {
+    ctx.save();
+    ctx.translate(top.x, top.y);
+    ctx.rotate(-Math.PI / 2);
+    ctx.strokeStyle = top.burst > 70 ? '#ff5470' : '#ffb44d';
+    ctx.lineWidth = 3;
+    ctx.globalAlpha = 0.9;
+    ctx.beginPath();
+    ctx.arc(0, 0, r + 8, 0, TAU * Math.min(1, top.burst / 100));
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Wobble marker when a top is about to stop spinning.
+  if (spinFactor < 0.22 && top.alive) {
+    ctx.save();
+    ctx.globalAlpha = 0.5 + Math.sin(t * 12) * 0.3;
+    ctx.strokeStyle = '#ff9f4d';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(top.x, top.y, r + 14, 0, TAU);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawParticles(ctx, r, dt) {
+  for (let i = r.particles.length - 1; i >= 0; i--) {
+    const p = r.particles[i];
+    p.life -= dt;
+    if (p.life <= 0) {
+      r.particles.splice(i, 1);
+      continue;
+    }
+    p.vy += p.gravity * dt;
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.vx *= 0.97;
+    p.vy *= 0.97;
+    const a = p.life / p.max;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size * a, 0, TAU);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function render(r, battle, dt, opts = {}) {
+  const { ctx, canvas } = r;
+  r.time += dt;
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#070a14';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  r.shake = Math.max(0, r.shake - dt * 55);
+  const sx = (Math.random() - 0.5) * r.shake;
+  const sy = (Math.random() - 0.5) * r.shake;
+  ctx.save();
+  ctx.translate(sx, sy);
+
+  drawArena(ctx, r.time);
+
+  battle.tops.forEach((top, i) => {
+    if (!top.alive) return;
+    const trail = r.trails[i];
+    trail.push({ x: top.x, y: top.y });
+    if (trail.length > 26) trail.shift();
+    drawTrail(ctx, trail, top.spec.color);
+  });
+
+  battle.tops.forEach((top) => {
+    if (top.alive || opts.showDead) drawTop(ctx, top, r.time);
+  });
+
+  drawParticles(ctx, r, dt);
+  ctx.restore();
+
+  if (r.flash > 0) {
+    r.flash = Math.max(0, r.flash - dt * 1.6);
+    ctx.globalAlpha = r.flash * 0.6;
+    ctx.fillStyle = r.flashColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.globalAlpha = 1;
+  }
+}
+
+
+// ---- net.js ----
+// Thin WebSocket client. The host is authoritative: it simulates and sends
+// snapshots, the guest sends input and renders what it is told.
+
+function createNet() {
+  return {
+    ws: null,
+    code: null,
+    you: null,      // 0 = host, 1 = guest
+    connected: false,
+    peer: null,
+    handlers: {},
+  };
+}
+
+function on(net, type, fn) {
+  net.handlers[type] = fn;
+}
+
+function emit(net, type, payload) {
+  const fn = net.handlers[type];
+  if (fn) fn(payload);
+}
+
+function connect(net) {
+  if (net.ws && (net.ws.readyState === 0 || net.ws.readyState === 1)) return Promise.resolve();
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  net.ws = new WebSocket(`${proto}://${location.host}`);
+
+  return new Promise((resolve, reject) => {
+    net.ws.onopen = () => {
+      net.connected = true;
+      resolve();
+    };
+    net.ws.onerror = () => reject(new Error('connection failed'));
+    net.ws.onclose = () => {
+      net.connected = false;
+      emit(net, 'closed');
+    };
+    net.ws.onmessage = (ev) => {
+      let msg;
+      try {
+        msg = JSON.parse(ev.data);
+      } catch {
+        return;
+      }
+      if (msg.t === 'created' || msg.t === 'joined') {
+        net.code = msg.code;
+        net.you = msg.you;
+        if (msg.peer) net.peer = msg.peer;
+      }
+      if (msg.t === 'peerJoined') net.peer = msg.peer;
+      emit(net, msg.t, msg);
+    };
+  });
+}
+
+function send(net, msg) {
+  if (net.ws && net.ws.readyState === 1) net.ws.send(JSON.stringify(msg));
+}
+
+function disconnect(net) {
+  if (net.ws && net.ws.readyState === 1) send(net, { t: 'leave' });
+  if (net.ws) net.ws.close();
+  net.ws = null;
+  net.code = null;
+  net.you = null;
+  net.peer = null;
+  net.connected = false;
+}
+
+const isHost = (net) => net.you === 0;
+
+
+// ---- game.js ----
+// Match flow: launch phase -> battle -> round result -> next round, plus the
+// input layer and the online sync glue. The host client owns the simulation.
+
+
+const STEP = 1 / 60;
+const WIN_POINTS = 4;
+const SNAPSHOT_HZ = 30;
+
+const FINISH_TEXT = {
+  spin: ['迴轉結束', 'SPIN FINISH'],
+  ring: ['場外結束', 'OVER FINISH'],
+  burst: ['爆裂結束', 'BURST FINISH'],
+  timeout: ['時間到', 'TIME UP'],
+};
+
+const KEYMAP = {
+  0: { up: ['KeyW'], down: ['KeyS'], left: ['KeyA'], right: ['KeyD'], dash: ['Space'] },
+  1: { up: ['ArrowUp'], down: ['ArrowDown'], left: ['ArrowLeft'], right: ['ArrowRight'], dash: ['Enter', 'NumpadEnter'] },
+  // Online / solo players may use either cluster.
+  both: {
+    up: ['KeyW', 'ArrowUp'], down: ['KeyS', 'ArrowDown'],
+    left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'],
+    dash: ['Space', 'Enter', 'NumpadEnter'],
+  },
+};
+
+function createGame(canvas, hooks = {}) {
+  const game = {
+    canvas,
+    renderer: createRenderer(canvas),
+    hooks,
+    keys: new Set(),
+    pointer: { active: false, x: 0, y: 0, dash: false },
+    running: false,
+    raf: 0,
+    last: 0,
+    acc: 0,
+    netAcc: 0,
+    mode: 'solo',
+    net: null,
+    iAm: 0,
+    ai: null,
+    battle: null,
+    specs: [],
+    score: [0, 0],
+    round: 1,
+    phase: 'idle',
+    banner: null,
+    bannerTimer: 0,
+    charge: [{ held: false, t: 0, power: 0, aim: 0, locked: false }, { held: false, t: 0, power: 0, aim: 0, locked: false }],
+    cpuLaunchAt: 0,
+    guestTarget: null,
+  };
+
+  window.addEventListener('keydown', (e) => {
+    if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
+    game.keys.add(e.code);
+  });
+  window.addEventListener('keyup', (e) => game.keys.delete(e.code));
+  window.addEventListener('blur', () => game.keys.clear());
+
+  // Touch / mouse steering: drag anywhere on the arena to point your top,
+  // which also doubles as the launcher charge in the launch phase.
+  const point = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    game.pointer.x = ((t.clientX - rect.left) / rect.width) * canvas.width;
+    game.pointer.y = ((t.clientY - rect.top) / rect.height) * canvas.height;
+  };
+  const start = (e) => { game.pointer.active = true; point(e); e.preventDefault(); };
+  const move = (e) => { if (game.pointer.active) point(e); };
+  const end = () => { game.pointer.active = false; };
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  canvas.addEventListener('touchstart', start, { passive: false });
+  canvas.addEventListener('touchmove', move, { passive: false });
+  canvas.addEventListener('touchend', end);
+
+  return game;
+}
+
+const held = (game, codes) => codes.some((c) => game.keys.has(c));
+
+function readKeys(game, map) {
+  let x = 0;
+  let y = 0;
+  if (held(game, map.left)) x -= 1;
+  if (held(game, map.right)) x += 1;
+  if (held(game, map.up)) y -= 1;
+  if (held(game, map.down)) y += 1;
+  return { x, y, dash: held(game, map.dash) };
+}
+
+/** Which key cluster drives side `side` in the current mode. */
+function mapFor(game, side) {
+  if (game.mode === 'local') return KEYMAP[side];
+  return KEYMAP.both;
+}
+
+function localInput(game, side) {
+  const k = readKeys(game, mapFor(game, side));
+  // Pointer steering wins when the player is actually dragging.
+  if (game.pointer.active && (game.mode !== 'local' || side === 0)) {
+    const top = game.battle.tops[side];
+    const dx = game.pointer.x - top.x;
+    const dy = game.pointer.y - top.y;
+    const d = Math.hypot(dx, dy);
+    if (d > 12) {
+      k.x = dx / d;
+      k.y = dy / d;
+    }
+  }
+  return k;
+}
+
+function startMatch(game, opts) {
+  game.mode = opts.mode;
+  game.net = opts.net || null;
+  game.iAm = opts.iAm || 0;
+  game.specs = opts.combos.map(buildSpec);
+  separateColors(game.specs[0], game.specs[1]);
+  game.ai = opts.mode === 'solo' ? createAI(opts.difficulty || 'normal') : null;
+  game.score = [0, 0];
+  game.round = 1;
+  startRound(game);
+  if (!game.running) {
+    game.running = true;
+    game.last = performance.now();
+    game.raf = requestAnimationFrame((t) => loop(game, t));
+  }
+}
+
+function stopMatch(game) {
+  game.running = false;
+  cancelAnimationFrame(game.raf);
+  game.phase = 'idle';
+}
+
+function startRound(game) {
+  game.battle = createBattle(game.specs[0], game.specs[1]);
+  game.battle.phase = 'launch';
+  game.phase = 'launch';
+  game.charge.forEach((c) => Object.assign(c, { held: false, t: 0, power: 0, aim: 0, locked: false }));
+  game.cpuLaunchAt = 0.5 + Math.random() * 0.9;
+  game.banner = null;
+  game.guestTarget = null;
+  resetFx(game.renderer);
+  if (game.hooks.onRound) game.hooks.onRound(game);
+}
+
+function chargeSide(game, side, dt, wantsCharge, aimDir) {
+  const c = game.charge[side];
+  if (c.locked) return;
+  if (wantsCharge) {
+    c.held = true;
+    c.t += dt;
+    // Ping-pong meter: stopping it near the top is the skill test.
+    const cycle = (c.t / 1.15) % 2;
+    c.power = cycle <= 1 ? cycle : 2 - cycle;
+    c.aim = Math.max(-1, Math.min(1, c.aim + aimDir * dt * 1.6));
+  } else if (c.held) {
+    c.locked = true;
+    launchTop(game.battle.tops[side], Math.max(0.15, c.power), c.aim);
+    if (game.mode === 'online' && side === game.iAm) {
+      send(game.net, { t: 'launch', power: Math.max(0.15, c.power), aim: c.aim });
+    }
+  }
+}
+
+function updateLaunch(game, dt) {
+  const b = game.battle;
+
+  if (game.mode === 'online') {
+    const map = KEYMAP.both;
+    const wants = held(game, map.dash) || game.pointer.active;
+    const aim = (held(game, map.right) ? 1 : 0) - (held(game, map.left) ? 1 : 0);
+    chargeSide(game, game.iAm, dt, wants, aim);
+  } else if (game.mode === 'local') {
+    for (const side of [0, 1]) {
+      const map = KEYMAP[side];
+      const wants = held(game, map.dash) || (side === 0 && game.pointer.active);
+      const aim = (held(game, map.right) ? 1 : 0) - (held(game, map.left) ? 1 : 0);
+      chargeSide(game, side, dt, wants, aim);
+    }
+  } else {
+    const map = KEYMAP.both;
+    const wants = held(game, map.dash) || game.pointer.active;
+    const aim = (held(game, map.right) ? 1 : 0) - (held(game, map.left) ? 1 : 0);
+    chargeSide(game, 0, dt, wants, aim);
+    game.cpuLaunchAt -= dt;
+    if (game.cpuLaunchAt <= 0 && !game.charge[1].locked) {
+      const l = aiLaunch(game.ai);
+      game.charge[1].locked = true;
+      game.charge[1].power = l.power;
+      launchTop(b.tops[1], l.power, l.aim);
+    }
+  }
+
+  if (b.tops.every((t) => t.launched)) {
+    b.phase = 'battle';
+    game.phase = 'battle';
+  }
+}
+
+function awardPoints(game) {
+  const r = game.battle.result;
+  if (!r) return;
+  if (r.winner >= 0) game.score[r.winner] += r.points || POINTS[r.reason] || 1;
+  const [zh, en] = FINISH_TEXT[r.reason] || FINISH_TEXT.spin;
+  game.banner = {
+    title: r.winner < 0 ? '平手' : `${zh} +${r.points}`,
+    sub: r.winner < 0 ? 'DRAW' : en,
+    winner: r.winner,
+  };
+  game.bannerTimer = 2.6;
+  game.phase = 'roundEnd';
+  if (game.hooks.onScore) game.hooks.onScore(game);
+}
+
+function afterRound(game, dt) {
+  game.bannerTimer -= dt;
+  if (game.bannerTimer > 0) return;
+  const done = game.score.some((s) => s >= WIN_POINTS);
+  if (done) {
+    game.phase = 'matchEnd';
+    if (game.hooks.onMatchEnd) game.hooks.onMatchEnd(game, game.score[0] > game.score[1] ? 0 : 1);
+  } else {
+    game.round++;
+    startRound(game);
+  }
+}
+
+function simulate(game, dt) {
+  const b = game.battle;
+  if (game.mode === 'solo') {
+    Object.assign(b.tops[0].input, localInput(game, 0));
+    think(game.ai, b.tops[1], b.tops[0], dt);
+  } else if (game.mode === 'local') {
+    Object.assign(b.tops[0].input, localInput(game, 0));
+    Object.assign(b.tops[1].input, localInput(game, 1));
+  } else if (isHost(game.net)) {
+    Object.assign(b.tops[0].input, localInput(game, 0));
+    // tops[1].input is written by the guest's input messages.
+  }
+  const events = stepBattle(b, dt);
+  handleEvents(game.renderer, events, b.tops);
+  if (b.phase === 'result' && game.phase === 'battle') awardPoints(game);
+}
+
+/** Guests do not simulate: they smooth toward the host's snapshots. */
+function followHost(game, dt) {
+  const b = game.battle;
+  const target = game.guestTarget;
+  for (const t of b.tops) {
+    if (!t.alive) continue;
+    t.x += t.vx * dt;
+    t.y += t.vy * dt;
+    t.angle += t.spec.spinDir * (2 + Math.max(0, t.spin / 100) * 26) * dt;
+  }
+  if (!target) return;
+  target.tops.forEach((d, i) => {
+    const t = b.tops[i];
+    const k = 0.25;
+    t.x += (d[0] - t.x) * k;
+    t.y += (d[1] - t.y) * k;
+    t.vx = d[2];
+    t.vy = d[3];
+    t.spin = d[4];
+    t.burst = d[5];
+    t.alive = !!d[7];
+    t.dashCd = d[8];
+  });
+}
+
+function pushNet(game, dt) {
+  if (game.mode !== 'online') return;
+  game.netAcc += dt;
+  if (game.netAcc < 1 / SNAPSHOT_HZ) return;
+  game.netAcc = 0;
+  if (isHost(game.net)) {
+    send(game.net, { t: 'state', s: snapshot(game.battle), score: game.score, round: game.round, banner: game.banner, phase: game.phase });
+  } else {
+    const i = localInput(game, game.iAm);
+    send(game.net, { t: 'input', x: i.x, y: i.y, dash: i.dash });
+  }
+}
+
+/** Host side: apply an input message from the guest. */
+function applyGuestInput(game, msg) {
+  if (!game.battle || !isHost(game.net)) return;
+  const t = game.battle.tops[1];
+  t.input.x = msg.x || 0;
+  t.input.y = msg.y || 0;
+  if (msg.dash) t.input.dash = true;
+}
+
+/** Host side: the guest released its launcher. */
+function applyGuestLaunch(game, msg) {
+  if (!game.battle || !isHost(game.net)) return;
+  if (game.charge[1].locked) return;
+  game.charge[1].locked = true;
+  game.charge[1].power = msg.power;
+  launchTop(game.battle.tops[1], msg.power, msg.aim || 0);
+}
+
+/** Guest side: adopt the host's authoritative state. */
+function applyHostState(game, msg) {
+  if (!game.battle || isHost(game.net)) return;
+  game.guestTarget = msg.s;
+  game.score = msg.score || game.score;
+  game.battle.timeLeft = msg.s.tl;
+  game.battle.result = msg.s.rs;
+  if (msg.s.ph === 'battle' && game.phase === 'launch') {
+    game.phase = 'battle';
+    game.battle.phase = 'battle';
+    game.battle.tops.forEach((t) => { t.launched = true; });
+  }
+  if (msg.phase === 'roundEnd' && game.phase !== 'roundEnd') {
+    game.phase = 'roundEnd';
+    game.banner = msg.banner;
+    game.bannerTimer = 2.6;
+    if (game.hooks.onScore) game.hooks.onScore(game);
+  }
+  if (msg.round !== game.round && msg.phase === 'launch') {
+    game.round = msg.round;
+    startRound(game);
+  }
+}
+
+function loop(game, now) {
+  if (!game.running) return;
+  const dt = Math.min(0.05, (now - game.last) / 1000);
+  game.last = now;
+  game.raf = requestAnimationFrame((t) => loop(game, t));
+
+  const guest = game.mode === 'online' && !isHost(game.net);
+
+  if (game.phase === 'launch') {
+    updateLaunch(game, dt);
+  } else if (game.phase === 'battle') {
+    if (guest) {
+      followHost(game, dt);
+    } else {
+      game.acc += dt;
+      let steps = 0;
+      while (game.acc >= STEP && steps < 5) {
+        simulate(game, STEP);
+        game.acc -= STEP;
+        steps++;
+      }
+    }
+  } else if (game.phase === 'roundEnd') {
+    if (guest) followHost(game, dt);
+    else afterRound(game, dt);
+  }
+
+  pushNet(game, dt);
+  render(game.renderer, game.battle, dt, { showDead: game.phase !== 'battle' });
+  if (game.hooks.onFrame) game.hooks.onFrame(game);
+}
+
+
+
+// ---- main.js ----
+// DOM wiring: menu, garage, online lobby and the in-game HUD.
+
+
+const $ = (id) => document.getElementById(id);
+const screens = {
+  menu: $('screen-menu'),
+  lobby: $('screen-lobby'),
+  game: $('screen-game'),
+};
+
+const state = {
+  mode: 'solo',
+  difficulty: 'normal',
+  combo: { layer: 'valkyr', disc: 'light', driver: 'flat', spinDir: 1 },
+  opponentCombo: null,
+};
+
+const net = createNet();
+const game = createGame($('arena'), {
+  onFrame: updateHud,
+  onRound: updateHud,
+  onScore: updateHud,
+  onMatchEnd: showResult,
+});
+
+function show(name) {
+  Object.values(screens).forEach((s) => s.classList.remove('active'));
+  screens[name].classList.add('active');
+}
+
+/* ── garage ─────────────────────────────────────────────── */
+
+function chipRow(container, items, key) {
+  container.innerHTML = '';
+  items.forEach((item) => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (state.combo[key] === item.id ? ' active' : '');
+    b.textContent = item.name;
+    b.dataset.id = item.id;
+    b.onclick = () => {
+      state.combo[key] = item.id;
+      [...container.children].forEach((c) => c.classList.toggle('active', c.dataset.id === item.id));
+      refreshSpec();
+    };
+    container.appendChild(b);
+  });
+}
+
+function buildGarage() {
+  chipRow($('pick-layer'), LAYERS, 'layer');
+  chipRow($('pick-disc'), DISCS, 'disc');
+  chipRow($('pick-driver'), DRIVERS, 'driver');
+
+  const presets = $('presets');
+  presets.innerHTML = '';
+  PRESETS.forEach((p) => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.textContent = p.name;
+    b.onclick = () => {
+      Object.assign(state.combo, { layer: p.layer, disc: p.disc, driver: p.driver });
+      buildGarage();
+      refreshSpec();
+    };
+    presets.appendChild(b);
+  });
+
+  $('pick-spin').querySelectorAll('.chip').forEach((b) => {
+    b.classList.toggle('active', String(state.combo.spinDir) === b.dataset.spin);
+    b.onclick = () => {
+      state.combo.spinDir = Number(b.dataset.spin);
+      $('pick-spin').querySelectorAll('.chip').forEach((c) => c.classList.toggle('active', c === b));
+      refreshSpec();
+    };
+  });
+}
+
+function refreshSpec() {
+  const spec = buildSpec(state.combo);
+  $('stats').innerHTML = statBars(spec)
+    .map(([label, value, max]) => `
+      <div class="stat">
+        <span>${label}</span>
+        <span class="track"><i style="width:${Math.max(4, Math.min(100, (value / max) * 100))}%"></i></span>
+        <b>${value}</b>
+      </div>`)
+    .join('');
+  drawPreview(spec);
+}
+
+let previewAngle = 0;
+let previewSpec = null;
+function drawPreview(spec) {
+  previewSpec = spec;
+}
+(function previewLoop() {
+  requestAnimationFrame(previewLoop);
+  const c = $('preview');
+  if (!c || !previewSpec) return;
+  const ctx = c.getContext('2d');
+  const r = 62;
+  previewAngle += 0.06 * previewSpec.spinDir;
+  ctx.clearRect(0, 0, c.width, c.height);
+  ctx.save();
+  ctx.translate(c.width / 2, c.height / 2);
+
+  const glow = ctx.createRadialGradient(0, 0, 10, 0, 0, r * 1.6);
+  glow.addColorStop(0, previewSpec.color);
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.globalAlpha = 0.4;
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 1.6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  ctx.rotate(previewAngle);
+  ctx.beginPath();
+  for (let i = 0; i <= previewSpec.blades; i++) {
+    const a = (i / previewSpec.blades) * Math.PI * 2;
+    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    ctx.lineTo(Math.cos(a + Math.PI / previewSpec.blades) * r * 0.55, Math.sin(a + Math.PI / previewSpec.blades) * r * 0.55);
+  }
+  ctx.closePath();
+  ctx.fillStyle = previewSpec.color;
+  ctx.fill();
+  ctx.strokeStyle = previewSpec.accent;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.55, 0, Math.PI * 2);
+  ctx.fillStyle = '#e8eefc';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.4, 0, Math.PI * 2);
+  ctx.fillStyle = previewSpec.accent;
+  ctx.fill();
+  ctx.restore();
+})();
+
+/* ── HUD ────────────────────────────────────────────────── */
+
+function names() {
+  if (state.mode === 'solo') return ['玩家', '電腦'];
+  if (state.mode === 'local') return ['玩家 1', '玩家 2'];
+  return game.iAm === 0 ? ['你', '對手'] : ['對手', '你'];
+}
+
+function dots(el, score) {
+  if (el.children.length !== WIN_POINTS) {
+    el.innerHTML = Array.from({ length: WIN_POINTS }, () => '<span class="dot"></span>').join('');
+  }
+  [...el.children].forEach((d, i) => d.classList.toggle('on', i < Math.min(WIN_POINTS, score)));
+}
+
+function updateHud() {
+  const b = game.battle;
+  if (!b) return;
+  const [n1, n2] = names();
+  $('p1-name').textContent = n1;
+  $('p2-name').textContent = n2;
+  $('round-label').textContent = `ROUND ${game.round}`;
+  $('timer').textContent = Math.ceil(b.timeLeft);
+
+  b.tops.forEach((t, i) => {
+    $(`p${i + 1}-spin`).style.width = `${Math.max(0, Math.min(100, t.spin))}%`;
+    $(`p${i + 1}-burst`).style.width = `${Math.max(0, Math.min(100, t.burst))}%`;
+    dots($(`p${i + 1}-dots`), game.score[i]);
+  });
+
+  const launching = game.phase === 'launch';
+  $('launcher').hidden = !launching;
+  if (launching) {
+    const mine = state.mode === 'online' ? game.iAm : 0;
+    const c = game.charge[mine];
+    $('meter-fill').style.width = `${Math.round(c.power * 100)}%`;
+    const other = game.charge[1 - mine];
+    $('launch-sub').textContent = c.locked
+      ? (other.locked ? '' : '等待對手發射…')
+      : (state.mode === 'local' ? '1P：空白鍵　2P：Enter' : '量表越滿，初速與迴轉力越高');
+  }
+
+  const banner = $('banner');
+  if (game.banner && game.phase === 'roundEnd') {
+    banner.hidden = false;
+    $('banner-title').textContent = game.banner.title;
+    $('banner-sub').textContent = game.banner.sub;
+    $('banner-title').style.color = game.banner.winner === 0 ? 'var(--p1)' : game.banner.winner === 1 ? 'var(--p2)' : 'var(--ink)';
+  } else {
+    banner.hidden = true;
+  }
+}
+
+function showResult(g, winner) {
+  const [n1, n2] = names();
+  $('result').hidden = false;
+  $('result-title').textContent = `${winner === 0 ? n1 : n2} 獲勝！`;
+  $('result-title').style.color = winner === 0 ? 'var(--p1)' : 'var(--p2)';
+  $('result-score').textContent = `${g.score[0]} : ${g.score[1]}`;
+  $('btn-rematch').hidden = state.mode === 'online' && !isHost(net);
+}
+
+/* ── match start ────────────────────────────────────────── */
+
+function cpuCombo() {
+  // Never mirror the player's layer: same-build matches are far less interesting.
+  const pool = PRESETS.filter((p) => p.layer !== state.combo.layer);
+  const p = (pool.length ? pool : PRESETS)[Math.floor(Math.random() * (pool.length || PRESETS.length))];
+  return { layer: p.layer, disc: p.disc, driver: p.driver, spinDir: Math.random() < 0.35 ? -1 : 1 };
+}
+
+function begin(mode, extra = {}) {
+  state.mode = mode;
+  $('result').hidden = true;
+  $('banner').hidden = true;
+  show('game');
+  const mine = { ...state.combo };
+  let combos;
+  if (mode === 'online') {
+    const peer = state.opponentCombo || cpuCombo();
+    combos = isHost(net) ? [mine, peer] : [peer, mine];
+  } else if (mode === 'local') {
+    combos = [mine, { ...cpuCombo(), spinDir: -state.combo.spinDir }];
+  } else {
+    combos = [mine, cpuCombo()];
+  }
+  startMatch(game, {
+    mode,
+    difficulty: state.difficulty,
+    combos,
+    net: mode === 'online' ? net : null,
+    iAm: mode === 'online' ? net.you : 0,
+    ...extra,
+  });
+  updateHud();
+}
+
+/* ── online lobby ───────────────────────────────────────── */
+
+function wireNet() {
+  on(net, 'created', (m) => {
+    $('room-info').hidden = false;
+    $('room-code').textContent = m.code;
+    $('room-status').textContent = '等待對手加入…';
+  });
+  on(net, 'joined', () => {
+    $('room-info').hidden = false;
+    $('room-code').textContent = net.code;
+    $('room-status').textContent = '已連線，準備開始…';
+    state.opponentCombo = net.peer && net.peer.combo ? net.peer.combo : null;
+    begin('online');
+  });
+  on(net, 'peerJoined', (m) => {
+    state.opponentCombo = m.peer && m.peer.combo ? m.peer.combo : null;
+    $('room-status').textContent = '對手已加入！';
+    begin('online');
+  });
+  on(net, 'input', (m) => applyGuestInput(game, m));
+  on(net, 'launch', (m) => applyGuestLaunch(game, m));
+  on(net, 'state', (m) => applyHostState(game, m));
+  on(net, 'rematch', () => { if (isHost(net)) begin('online'); });
+  on(net, 'error', (m) => {
+    $('lobby-error').textContent = m.reason === 'no-room' ? '找不到這個房號' : '房間已滿';
+  });
+  on(net, 'peerLeft', () => {
+    if (screens.game.classList.contains('active')) {
+      stopMatch(game);
+      alert('對手已離開房間');
+    }
+    disconnect(net);
+    show('menu');
+  });
+  on(net, 'closed', () => {
+    if (screens.lobby.classList.contains('active')) $('lobby-error').textContent = '連線已中斷';
+  });
+}
+
+/* ── events ─────────────────────────────────────────────── */
+
+document.querySelectorAll('.mode').forEach((b) => {
+  b.onclick = () => {
+    const mode = b.dataset.mode;
+    if (mode === 'online') {
+      $('lobby-error').textContent = '';
+      $('room-info').hidden = true;
+      show('lobby');
+      return;
+    }
+    begin(mode);
+  };
+});
+
+$('difficulty').querySelectorAll('.chip').forEach((b) => {
+  b.onclick = () => {
+    state.difficulty = b.dataset.diff;
+    $('difficulty').querySelectorAll('.chip').forEach((c) => c.classList.toggle('active', c === b));
+  };
+});
+
+$('btn-create').onclick = async () => {
+  $('lobby-error').textContent = '';
+  try {
+    await connect(net);
+    send(net, { t: 'create', info: { combo: state.combo } });
+  } catch {
+    $('lobby-error').textContent = '無法連線到伺服器';
+  }
+};
+
+$('btn-join').onclick = async () => {
+  const code = $('join-code').value.trim().toUpperCase();
+  if (code.length < 4) {
+    $('lobby-error').textContent = '請輸入 4 位房號';
+    return;
+  }
+  $('lobby-error').textContent = '';
+  try {
+    await connect(net);
+    send(net, { t: 'join', code, info: { combo: state.combo } });
+  } catch {
+    $('lobby-error').textContent = '無法連線到伺服器';
+  }
+};
+
+$('btn-lobby-back').onclick = () => {
+  disconnect(net);
+  show('menu');
+};
+
+$('btn-rematch').onclick = () => {
+  if (state.mode === 'online' && !isHost(net)) {
+    send(net, { t: 'rematch' });
+    return;
+  }
+  if (state.mode === 'online') send(net, { t: 'rematch' });
+  begin(state.mode);
+};
+
+const quit = () => {
+  stopMatch(game);
+  if (state.mode === 'online') disconnect(net);
+  show('menu');
+};
+$('btn-quit').onclick = quit;
+$('btn-back').onclick = quit;
+
+// The single-file build (scripts/build-single.mjs) has no WebSocket server
+// behind it, so online play is switched off there rather than failing late.
+if (window.__STATIC_BUILD) {
+  const online = document.querySelector('.mode[data-mode="online"]');
+  online.disabled = true;
+  online.querySelector('span').textContent = '需要架設伺服器';
+  online.title = '線上對戰需要執行 server.js，見 README';
+}
+
+// Exposed for debugging and for the browser tests in scripts/.
+window.__game = game;
+window.__net = net;
+
+wireNet();
+buildGarage();
+refreshSpec();
+
+</script>
+</body>
+</html>

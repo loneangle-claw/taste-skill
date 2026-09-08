@@ -96,6 +96,9 @@ kbd {
 .mode strong { font-size: 15px; }
 .mode span { font-size: 12px; color: var(--muted); }
 .mode:hover { transform: translateY(-2px); border-color: rgba(126, 160, 235, 0.5); background: rgba(77, 163, 255, 0.1); }
+.mode:disabled { opacity: 0.45; cursor: not-allowed; }
+.mode:disabled:hover { transform: none; border-color: var(--line); background: rgba(255, 255, 255, 0.03); }
+.mode:focus-visible, .chip:focus-visible, .primary:focus-visible, .ghost:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {

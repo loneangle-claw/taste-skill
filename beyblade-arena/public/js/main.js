@@ -348,6 +348,15 @@ const quit = () => {
 $('btn-quit').onclick = quit;
 $('btn-back').onclick = quit;
 
+// The single-file build (scripts/build-single.mjs) has no WebSocket server
+// behind it, so online play is switched off there rather than failing late.
+if (window.__STATIC_BUILD) {
+  const online = document.querySelector('.mode[data-mode="online"]');
+  online.disabled = true;
+  online.querySelector('span').textContent = '需要架設伺服器';
+  online.title = '線上對戰需要執行 server.js，見 README';
+}
+
 // Exposed for debugging and for the browser tests in scripts/.
 window.__game = game;
 window.__net = net;
