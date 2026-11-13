@@ -1,0 +1,13 @@
+{
+  "name": "taste-skill-preflight",
+  "private": true,
+  "type": "module",
+  "description": "Playwright audit for the mechanical part of the taste-skill Pre-Flight Check",
+  "scripts": {
+    "audit": "node preflight.mjs",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "playwright": "^1.50.0"
+  }
+}
