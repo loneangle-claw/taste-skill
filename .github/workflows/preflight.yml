@@ -1,0 +1,51 @@
+name: Pre-flight audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/preflight/**'
+      - 'examples/blind-trials/**'
+      - '.github/workflows/preflight.yml'
+  pull_request:
+    paths:
+      - 'tests/preflight/**'
+      - 'examples/blind-trials/**'
+      - '.github/workflows/preflight.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: tests/preflight
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/preflight/package-lock.json
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - name: Test the checker against its fixtures
+        run: npm test
+
+      - name: Audit the passing fixture
+        if: always()
+        run: node preflight.mjs fixtures/pass.html --out preflight-report
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: preflight-report
+          path: tests/preflight/preflight-report/
+          if-no-files-found: ignore

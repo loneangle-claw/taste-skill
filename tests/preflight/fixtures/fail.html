@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acme — Next-Gen Flowers</title>
+<!-- Deliberately breaks the taste-skill rules. Each violation is asserted in preflight.test.mjs. -->
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { background: #000000; color: #ffffff; font: 16px/1.5 Inter, sans-serif; cursor: url(img/peonies.webp), auto; }
+  header { height: 120px; padding: 16px 40px; }
+  nav { display: flex; flex-wrap: wrap; gap: 24px; width: 420px; }
+  nav a { color: #ffffff; }
+  .hero { padding: 220px 40px 80px; text-align: center; }
+  .eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em; }
+  h1 {
+    font: 700 96px/1 Fraunces, serif; max-width: 900px; margin: 0 auto;
+    background: linear-gradient(90deg, #a855f7, #3b82f6); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .btn { display: inline-block; padding: 12px 24px; border-radius: 8px; background: #7c3aed; color: #ffffff; border: 0; font: inherit; }
+  .glow { box-shadow: 0 0 40px 0 rgba(168, 85, 247, 0.7); border-radius: 999px; }
+  .ghost { background: #ffffff; color: #f5f5f5; }
+  .narrow { max-width: 110px; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding: 40px; }
+  .card { border-left: 3px solid #b08947; background: #111111; padding: 24px; border-radius: 16px; }
+  .wide { width: 1700px; height: 40px; background: #222222; }
+  .spin { width: 40px; height: 40px; background: #7c3aed; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  section { padding: 40px; }
+  input { background: #ffffff; color: #dddddd; border: 0; padding: 12px; }
+  input::placeholder { color: #e5e5e5; }
+</style>
+</head>
+<body>
+<header>
+  <nav>
+    <a href="#">Acme</a><a href="#">Products</a><a href="#">Solutions</a><a href="#">Customers</a>
+    <a href="#">Pricing</a><a href="#">Company</a><a href="#">Resources</a><a href="#">Sign in</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <p class="eyebrow">01 / Welcome</p>
+  <h1>Elevate every single moment with seamless next-gen floral experiences — delivered</h1>
+  <p>Our revolutionary platform lets you unleash the power of flowers across every room in your home, every event on your calendar, and every relationship in your life, all with one simple subscription that just works.</p>
+  <p style="margin-top:32px">
+    <a class="btn glow" href="#">Get started</a>
+    <a class="btn ghost" href="#">Sign up free</a>
+    <button class="btn narrow">View all of our selected work</button>
+  </p>
+  <p>↓ Scroll to explore</p>
+</section>
+
+<section>
+  <p class="eyebrow">02 / Features</p>
+  <h2>Why choose us 🚀</h2>
+  <div class="cards">
+    <div class="card"><h3>Step 1: Order</h3><p>Pick a bouquet.</p></div>
+    <div class="card"><h3>Step 2: Wait</h3><p>We ship it.</p></div>
+    <div class="card"><h3>Step 3: Enjoy</h3><p>Flowers arrive.</p></div>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">03 / Testimonials</p>
+  <h2>Loved by customers</h2>
+  <p>"Best flowers ever." John Doe</p>
+  <img src="img/missing.webp" alt="A customer" width="200" height="120">
+  <img src="img/greens.webp" width="200" height="240">
+</section>
+
+<section>
+  <p class="eyebrow">04 / Contact</p>
+  <h2>Stay in the loop</h2>
+  <input type="email" placeholder="Enter your email">
+  <p class="reveal" style="opacity:0">This line waits for a reveal that never fires.</p>
+  <div class="spin"></div>
+  <div class="wide"></div>
+</section>
+
+<script>
+  window.addEventListener('scroll', () => { document.body.dataset.y = window.scrollY; });
+  setTimeout(() => { throw new Error('carousel is not defined'); }, 0);
+</script>
+</body>
+</html>

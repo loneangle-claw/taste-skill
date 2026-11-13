@@ -696,6 +696,8 @@ The ONLY permitted dash characters on the page are:
 * Regular hyphen `-` (for compound words, ranges, line dividers in markup)
 * Minus sign in math (`-5°C`)
 
+**CJK pages (Chinese, Japanese, Korean):** the ban covers `—` and `–`, including the doubled Chinese dash `——`. It does NOT cover the full-width wave dash `～` (U+FF5E) or `〜` (U+301C), which is the standard range mark in CJK text (`11/28（六）～11/29（日）`). Keep the source's `～` ranges as they are; do not "fix" them into hyphens.
+
 If your output contains a single `—` or `–` anywhere visible to the user, the output fails the Pre-Flight Check and must be rewritten.
 
 This rule is non-negotiable. The agent has historically ignored em-dash limits when phrased as "use sparingly." The phrasing here is binary: zero em-dashes.
