@@ -171,7 +171,7 @@ export function probe({ desktop }) {
   ];
   for (const { el, text } of strings) {
     if (/[—–]/.test(text)) add('em-dash', `"${text.slice(0, 60)}"`, el);
-    if (/\p{Extended_Pictographic}/u.test(text)) add('emoji', `"${text.slice(0, 60)}"`, el);
+    if (/\p{Emoji_Presentation}|\p{Extended_Pictographic}\uFE0F/u.test(text)) add('emoji', `"${text.slice(0, 60)}"`, el);
     for (const [re, kind] of copyBans) {
       const m = text.match(re);
       if (m) add('banned-copy', `${kind}: "${m[0]}"`, el);
