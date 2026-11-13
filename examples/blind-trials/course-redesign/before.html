@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UI 自動化測試｜使用 Playwright × AI 打造高品質測試工作流 - 青嶼軟體學堂</title>
+<style>
+  body { margin: 0; background: #fbf8f1; color: #333; font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif; line-height: 1.8; }
+  .top { background: #fff; border-bottom: 1px solid #ddd; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .logo { font-family: serif; font-size: 22px; color: #6b4f2a; }
+  .menu { font-size: 26px; color: #6b4f2a; }
+  .container { max-width: 760px; margin: 0 auto; padding: 24px 20px 120px; }
+  .tag { display: inline-block; border: 1px solid #2b5797; color: #2b5797; padding: 2px 10px; font-size: 13px; }
+  h1 { font-size: 30px; line-height: 1.4; color: #222; margin: 12px 0; }
+  .subtitle { color: #b08947; font-size: 18px; }
+  .box { background: #fff; border: 1px solid #e3dccd; padding: 18px 22px; margin: 22px 0; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+  .box h3 { margin-top: 0; border-left: 4px solid #b08947; padding-left: 10px; }
+  .price { font-size: 28px; color: #c0392b; font-weight: bold; }
+  table { width: 100%; border-collapse: collapse; background: #fff; }
+  th { background: #2b5797; color: #fff; padding: 8px; }
+  td { border: 1px solid #ccc; padding: 8px 10px; vertical-align: top; font-size: 15px; }
+  .faq dt { font-weight: bold; color: #2b5797; margin-top: 14px; }
+  .faq dd { margin-left: 0; color: #555; }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid #ddd; padding: 10px 16px; display: flex; gap: 10px; }
+  .btn { flex: 1; text-align: center; background: #a07a46; color: #fff; padding: 12px; border-radius: 6px; text-decoration: none; font-size: 16px; }
+  .btn.call { background: #1877f2; border-radius: 20px; }
+  footer { background: #f0ece3; padding: 30px 20px 100px; font-size: 14px; color: #888; }
+</style>
+</head>
+<body>
+<div class="top"><span class="logo">青嶼軟體學堂</span><span class="menu">☰</span></div>
+<div class="container">
+  <span class="tag">軟體課程</span>
+  <h1>UI 自動化測試｜使用 Playwright × AI 打造高品質測試工作流</h1>
+  <p class="subtitle">從業務流程、測試案例到 Playwright 自動化與 AI 協作</p>
+  <p>從釐清業務流程與界定測試範圍與案例，透過 Playwright 與 AI Agent 建立可執行、可診斷、可維護的 UI 自動化測試工作流。不只教你寫腳本，更涵蓋測試案例設計、Evidence 診斷、POM 與團隊測試流程。</p>
+  <p>課程以「Pet Shop 寵物購物系統」的購物主流程作為貫穿案例，從業務流程、測試案例、Playwright 自動化一路延伸到失敗診斷與可維護測試架構，建立一套能實際應用於開發與測試工作的 UI 自動化測試流程。</p>
+
+  <div class="box">
+    <h3>課程資訊</h3>
+    <ul>
+      <li>11/28（六）～11/29（日）兩天，共 12 小時，線上即時課程</li>
+      <li>以 Pet Shop 寵物購物系統為實作案例</li>
+      <li>從業務流程、測試案例到 Playwright 腳本與失敗診斷</li>
+      <li>結合 AI Agent 協作，延伸至 POM、Fixture 與團隊測試流程</li>
+    </ul>
+  </div>
+
+  <div class="box">
+    <h3>報名資訊</h3>
+    <p class="price">NT$8,800</p>
+    <ul>
+      <li>兩人同行：NT$8,400 / 人</li>
+      <li>四人以上：NT$8,000 / 人</li>
+      <li>舊生（UI 自動化測試基礎）優惠：NT$4,200 / 人</li>
+    </ul>
+    <a class="btn" href="#">立即報名</a>
+  </div>
+
+  <h2>課程要點</h2>
+  <ul>
+    <li>UI 自動化測試的角色與適用範圍</li>
+    <li>從業務流程界定測試範圍，拆分 Scenario 與 Test Case</li>
+    <li>Playwright Test、CLI、Locator、Assertion 與 Auto-waiting</li>
+    <li>AI Agent 輔助測試腳本生成、審查與修正</li>
+    <li>Screenshot、Trace、HTML Report 與 Evidence 診斷</li>
+    <li>POM、Fixture、測試資料隔離與團隊測試流程</li>
+  </ul>
+
+  <h2>課程大綱</h2>
+  <table>
+    <tr><th>單元</th><th>內容重點</th></tr>
+    <tr><td>一、UI 自動化定位與測試策略</td><td>UI 自動化測試的角色與適用範圍；Unit、Integration 與 E2E 的測試分層；Smoke Test 與 Regression Test 驗證策略</td></tr>
+    <tr><td>二、Playwright 環境建置</td><td>Node.js、Python 與開發環境設置；安裝 Playwright 與瀏覽器</td></tr>
+    <tr><td>三、測試案例設計</td><td>測試案例的基本結構；BDD 與 Given / When / Then；測試案例的顆粒度與責任範圍</td></tr>
+    <tr><td>四、Playwright 基礎操作與實務應用</td><td>CLI、Skill 與 Test 的基本分工；觀察、操作與驗證 Web UI；建立並執行第一個測試腳本；使用 AI Agent 與 HTML Report 檢視結果</td></tr>
+    <tr><td>五、Playwright 定位與腳本能力</td><td>UI、DOM 與 Accessibility 基本概念；Locator 與穩定定位策略；User Actions 與 Assertion</td></tr>
+    <tr><td>六、AI Agent 協作</td><td>以 AI Agent 生成測試腳本；審查與修正 AI 產出</td></tr>
+    <tr><td>七、失敗診斷</td><td>Screenshot、Trace Viewer、HTML Report；整理 Evidence 並引導 Agent 修正；重新執行與確認修正結果</td></tr>
+    <tr><td>八、Page Object Model 與可維護測試架構</td><td>POM 的導入時機；Helper Function 與 POM 的差異；Page Object 的設計與責任邊界；Locator、頁面操作與測試意圖分離；Fixture 與 POM 整合</td></tr>
+    <tr><td>九、測試資料與環境</td><td>測試資料的 Seed、Reset 與 Cleanup；測試資料隔離與團隊協作</td></tr>
+  </table>
+
+  <h2>常見問題與備註</h2>
+  <dl class="faq">
+    <dt>Q：這門課會教 Playwright 的基本操作嗎？</dt>
+    <dd>會，並會從基本腳本一路串到測試案例設計、AI Agent 協作、失敗診斷與 POM 測試架構。</dd>
+    <dt>Q：課程會使用哪些工具？</dt>
+    <dd>主要使用 Playwright Test、CLI 與相關 Skill / MCP，並搭配 VS Code 與 Codex 或 Claude 等 AI Agent 開發工具；但不限定使用特定單一 AI Coding 工具。</dd>
+    <dt>Q：需要從零開發 Pet Shop 系統嗎？</dt>
+    <dd>不需要。Pet Shop 是課程提供的範例系統，主要用來作為 UI 自動化測試與流程驗證的練習對象。</dd>
+    <dt>Q：需要具備 Playwright 經驗嗎？</dt>
+    <dd>不需要熟悉 Playwright，但建議具備基本程式與網頁概念。</dd>
+    <dt>Q：會提供課程錄影嗎？</dt>
+    <dd>會提供完整課程錄影，方便課後複習與反覆練習。</dd>
+  </dl>
+
+  <h2>教材、課程產出與備註</h2>
+  <ul>
+    <li>課前提供開發工具與 UI 測試環境建置文件，包含 Playwright Test、CLI、Skill，以及 AI Agent 相關工具與設定說明</li>
+    <li>提供課程講義、Pet Shop 範例專案、Playwright 測試腳本與測試報告範例</li>
+    <li>提供 AGENTS.md、Skill、MCP 與 UI 自動化測試規範範本</li>
+    <li>實作演練需事先完成環境建置，課堂中不逐步處理所有工具安裝問題</li>
+    <li>如需報帳，可提供相關付款憑證</li>
+  </ul>
+  <p><a class="btn" href="#">立即報名</a></p>
+</div>
+<footer>
+  <p>Profession：青嶼軟體學堂社群 ‧ GitHub 專案</p>
+  <p>Personal：Facebook ‧ Youtube ‧ Flickr 相簿</p>
+  <p>Contact：Send Email ‧ Line Me ‧ Mobile Phone</p>
+</footer>
+<div class="bar"><a class="btn" href="#">立即報名</a><a class="btn call" href="#">立即通話</a></div>
+</body>
+</html>

@@ -5,10 +5,12 @@ on:
     branches: [main]
     paths:
       - 'tests/preflight/**'
+      - 'examples/blind-trials/**'
       - '.github/workflows/preflight.yml'
   pull_request:
     paths:
       - 'tests/preflight/**'
+      - 'examples/blind-trials/**'
       - '.github/workflows/preflight.yml'
 
 permissions:

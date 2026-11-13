@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stem &amp; Vessel | Weekend flower-arranging workshops for beginners</title>
+<meta name="description" content="Small weekend flower-arranging workshops for complete beginners. Three hours at a shared table, everything provided, and you take home what you make.">
+<meta name="color-scheme" content="light dark">
+<link rel="preload" as="image" href="img/peonies.webp">
+<style>
+/*
+  Stem & Vessel landing page
+  Design read: premium-consumer landing for design-conscious beginners, calm modern-minimal
+  language. Aesthetic, not an official design system: native CSS, sans display type,
+  cool slate-green neutrals with one stem-green accent.
+  Dials: DESIGN_VARIANCE 6 / MOTION_INTENSITY 4 / VISUAL_DENSITY 3
+
+  Shape rule (followed everywhere):
+    buttons = full pill, images and panels = 14px, inputs = 10px.
+  Z-index scale: 10 = sticky nav. Nothing else is layered.
+  Theme: auto (prefers-color-scheme), one token set per mode, no section inversions.
+  Semantic error red is used only for form validation text and is not a second accent.
+*/
+:root {
+  --bg: #f2f5f3;
+  --surface: #e6ebe8;
+  --field: #fafcfb;
+  --text: #15201b;
+  --muted: #4a5852;
+  --line: #d0d8d4;
+  --field-line: #6f7f78;
+  --accent: #23573f;
+  --on-accent: #f2f5f3;
+  --error: #a1302a;
+  --r-panel: 14px;
+  --r-input: 10px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --wrap: 1240px;
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+  --section: clamp(5rem, 11vw, 9.5rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1413;
+    --surface: #171e1c;
+    --field: #0c1110;
+    --text: #e7eeea;
+    --muted: #a4b1ab;
+    --line: #27322e;
+    --field-line: #64736c;
+    --accent: #a3d6b8;
+    --on-accent: #0e1512;
+    --error: #f2a79f;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 88px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Satoshi", "Avenir Next", "Segoe UI Variable Text", "Segoe UI", "Helvetica Neue", system-ui, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+img { display: block; max-width: 100%; height: auto; }
+h1, h2, h3, p, ol, ul, figure, blockquote { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.wrap { max-width: var(--wrap); margin-inline: auto; padding-inline: var(--gutter); }
+.skip {
+  position: absolute; left: var(--gutter); top: -4rem;
+  background: var(--accent); color: var(--on-accent);
+  padding: .6rem 1rem; border-radius: 999px; text-decoration: none;
+}
+.skip:focus { top: .75rem; z-index: 10; }
+
+h1, h2 { font-weight: 500; letter-spacing: -0.03em; text-wrap: balance; }
+h1 { font-size: clamp(2.5rem, 5.4vw, 4.4rem); line-height: 1.03; }
+h2 { font-size: clamp(1.85rem, 3.3vw, 2.75rem); line-height: 1.1; }
+.lede { color: var(--muted); max-width: 46ch; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Buttons: full pill everywhere */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; padding: 0 1.5rem;
+  border-radius: 999px; border: 1px solid transparent;
+  font: inherit; font-size: 1rem; font-weight: 500; white-space: nowrap;
+  text-decoration: none; cursor: pointer;
+  transition: transform .3s var(--ease), opacity .3s var(--ease), background-color .3s var(--ease);
+}
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { opacity: .88; }
+.btn-ghost { border-color: var(--field-line); color: var(--text); background: transparent; }
+.btn-ghost:hover { background: var(--surface); }
+.btn:active { transform: scale(.98); }
+.btn[disabled] { opacity: .6; cursor: progress; }
+.btn-small { min-height: 42px; padding: 0 1.15rem; font-size: .95rem; }
+
+/* Nav */
+.nav {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.nav-in { display: flex; align-items: center; justify-content: space-between; height: 68px; gap: 1.5rem; }
+.brand { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.02em; text-decoration: none; white-space: nowrap; }
+.nav-links { display: flex; align-items: center; gap: 2rem; }
+.nav-links a:not(.btn) { text-decoration: none; color: var(--muted); font-size: .98rem; white-space: nowrap; transition: color .3s var(--ease); }
+.nav-links a:not(.btn):hover { color: var(--text); }
+
+/* Hero: asymmetric split */
+.hero-in {
+  display: grid; grid-template-columns: 1.1fr .9fr; align-items: center;
+  gap: clamp(2rem, 6vw, 6rem);
+  min-height: min(calc(100dvh - 69px), 800px);
+  padding-block: 3rem 4.5rem;
+}
+.hero-copy .lede { margin-top: 1.5rem; font-size: 1.2rem; line-height: 1.5; max-width: 34ch; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2.25rem; }
+.hero-art { position: relative; justify-self: end; width: min(100%, 400px); }
+.hero-art .main { width: 100%; aspect-ratio: 360 / 470; object-fit: cover; border-radius: var(--r-panel); }
+.hero-art .inset {
+  position: absolute; left: -26%; bottom: -2.25rem; width: 46%;
+  aspect-ratio: 360 / 440; object-fit: cover;
+  border-radius: var(--r-panel);
+  outline: 8px solid var(--bg);
+}
+
+/* Section scaffolding */
+section { padding-block: var(--section); }
+.hero { padding-block: 0; }
+.head { max-width: 40rem; margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+.head .lede { margin-top: 1rem; }
+
+/* The morning: bento, 5 items = 5 cells */
+.bento { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1rem; }
+.cell { border-radius: var(--r-panel); overflow: hidden; }
+.cell img { width: 100%; height: 100%; object-fit: cover; }
+.c-schedule { grid-column: span 5; background: var(--surface); padding: clamp(1.5rem, 3vw, 2.5rem); }
+.c-wide { grid-column: span 7; min-height: 300px; }
+.c-photo { grid-column: span 4; aspect-ratio: 380 / 290; }
+.c-incl {
+  grid-column: span 4; background: var(--accent); color: var(--on-accent);
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  display: flex; flex-direction: column; justify-content: flex-end; gap: .6rem;
+}
+.c-incl h3 { font-size: 1.35rem; font-weight: 500; letter-spacing: -0.02em; line-height: 1.2; }
+.c-incl p { font-size: 1rem; line-height: 1.5; }
+.schedule li { display: grid; grid-template-columns: 4.5rem 1fr; gap: 1rem; padding-block: 1.1rem; }
+.schedule li + li { border-top: 1px solid var(--line); }
+.schedule li:first-child { padding-top: 0; }
+.schedule li:last-child { padding-bottom: 0; }
+.schedule time { color: var(--muted); }
+.schedule h3 { font-size: 1.1rem; font-weight: 500; letter-spacing: -0.01em; }
+.schedule p { color: var(--muted); font-size: .98rem; line-height: 1.5; margin-top: .2rem; }
+
+/* Dates: full-width rows */
+.dates li {
+  display: grid; align-items: center; gap: 1.5rem;
+  grid-template-columns: 11rem 1fr 9.5rem 4.5rem auto;
+  padding-block: 1.6rem;
+  border-top: 1px solid var(--line);
+}
+.d-day { font-size: 1.45rem; font-weight: 500; letter-spacing: -0.02em; line-height: 1.2; }
+.d-day span { display: block; font-size: .95rem; font-weight: 400; letter-spacing: 0; color: var(--muted); }
+.d-what h3 { font-size: 1.15rem; font-weight: 500; letter-spacing: -0.01em; }
+.d-what p, .d-seats { color: var(--muted); font-size: .98rem; line-height: 1.5; }
+.d-price { font-size: 1.25rem; font-weight: 500; text-align: right; }
+.dates-note { margin-top: 1.75rem; color: var(--muted); font-size: .98rem; max-width: 60ch; }
+
+/* Attendees: offset trio */
+.voices { display: grid; grid-template-columns: 220px 1.5fr 1fr; gap: clamp(1.5rem, 4vw, 4rem); align-items: start; }
+.voices img { border-radius: var(--r-panel); aspect-ratio: 1; object-fit: cover; width: 100%; }
+.voices figure:last-child { margin-top: 5rem; }
+blockquote p { letter-spacing: -0.015em; text-wrap: pretty; }
+.q-lg p { font-size: clamp(1.4rem, 2.3vw, 1.9rem); line-height: 1.3; }
+.q-sm p { font-size: 1.15rem; line-height: 1.45; }
+figcaption { margin-top: 1.25rem; font-size: .98rem; color: var(--muted); }
+figcaption strong { display: block; color: var(--text); font-weight: 500; }
+
+/* Booking: single panel */
+.book { background: var(--surface); border-radius: var(--r-panel); padding: clamp(1.5rem, 5vw, 4.5rem); }
+.book .head { margin-bottom: 2.5rem; }
+form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem 1.25rem; max-width: 52rem; }
+.field { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
+.field.full { grid-column: 1 / -1; }
+label { font-size: .98rem; font-weight: 500; }
+.opt { font-weight: 400; color: var(--muted); }
+input, select, textarea {
+  font: inherit; color: var(--text); background: var(--field);
+  border: 1px solid var(--field-line); border-radius: var(--r-input);
+  min-height: 50px; padding: .7rem .9rem; width: 100%;
+  transition: border-color .3s var(--ease);
+}
+textarea { min-height: 110px; resize: vertical; }
+input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+[aria-invalid="true"] { border-color: var(--error); }
+.help { font-size: .9rem; color: var(--muted); }
+.err { font-size: .9rem; color: var(--error); font-weight: 500; }
+.err:empty { display: none; }
+.form-foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; margin-top: .5rem; }
+.form-foot p { font-size: .95rem; color: var(--muted); max-width: 38ch; }
+.done { max-width: 40rem; }
+.done h3 { font-size: 1.6rem; font-weight: 500; letter-spacing: -0.02em; }
+.done p { margin-top: .75rem; color: var(--muted); }
+.done .btn { margin-top: 1.75rem; }
+[hidden] { display: none !important; }
+
+/* Footer */
+footer { border-top: 1px solid var(--line); padding-block: 2.5rem; color: var(--muted); font-size: .95rem; }
+.foot-in { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .75rem 2rem; }
+.foot-in .brand { color: var(--text); font-size: 1rem; }
+
+/* Motion (dial 4): one load-in cascade on the hero for hierarchy, one quiet reveal per
+   section as it enters, press feedback on buttons. Transform and opacity only. */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+  .rise { animation: rise .9s var(--ease) both; animation-delay: calc(var(--i, 0) * 110ms); }
+  @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  .js .reveal { opacity: 0; transform: translateY(20px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+  .js .reveal.in { opacity: 1; transform: none; }
+}
+
+/* Mobile and tablet collapse, declared per section */
+@media (max-width: 1023px) {
+  .dates li { grid-template-columns: 9rem 1fr auto; row-gap: .75rem; }
+  .d-seats { grid-column: 2; grid-row: 2; }
+  .d-price { grid-column: 3; grid-row: 1; }
+  .dates li .btn { grid-column: 3; grid-row: 2; }
+  .voices { grid-template-columns: 160px 1fr; }
+  .voices figure:last-child { grid-column: 2; margin-top: 0; }
+  .c-schedule, .c-wide { grid-column: 1 / -1; }
+  .c-wide { min-height: 0; aspect-ratio: 780 / 280; }
+}
+@media (max-width: 767px) {
+  .nav-links a:not(.btn) { display: none; }
+  .hero-in { grid-template-columns: 1fr; min-height: 0; padding-block: 2.5rem 3.5rem; gap: 2.5rem; }
+  .hero-art { justify-self: stretch; width: 100%; }
+  .hero-art .main { aspect-ratio: 5 / 4; }
+  .hero-art .inset { display: none; }
+  .bento { grid-template-columns: 1fr 1fr; }
+  .c-photo { grid-column: span 1; }
+  .c-incl { grid-column: 1 / -1; }
+  .dates li { grid-template-columns: 1fr auto; gap: .4rem 1rem; padding-block: 1.4rem; }
+  .d-day { grid-column: 1; grid-row: 1; }
+  .d-price { grid-column: 2; grid-row: 1; }
+  .d-what { grid-column: 1 / -1; grid-row: 2; }
+  .d-seats { grid-column: 1; grid-row: 3; align-self: center; }
+  .dates li .btn { grid-column: 2; grid-row: 3; }
+  .voices { grid-template-columns: 1fr; }
+  .voices img { width: 140px; }
+  .voices figure:last-child { grid-column: auto; }
+  form { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js');</script>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top">Stem &amp; Vessel</a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#morning">The morning</a>
+      <a href="#dates">Dates</a>
+      <a href="#attendees">Attendees</a>
+      <a class="btn btn-primary btn-small" href="#book">Book a seat</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top">
+    <div class="wrap hero-in">
+      <div class="hero-copy">
+        <h1 class="rise" style="--i:0">A slow morning with flowers.</h1>
+        <p class="lede rise" style="--i:1">Weekend workshops for complete beginners. Three hours at a shared table, and you take home what you make.</p>
+        <div class="hero-cta rise" style="--i:2">
+          <a class="btn btn-primary" href="#book">Book a seat</a>
+          <a class="btn btn-ghost" href="#dates">See dates</a>
+        </div>
+      </div>
+      <div class="hero-art rise" style="--i:2">
+        <img class="main" src="img/peonies.webp" width="360" height="470" alt="Pink peonies arranged in a vase against a dark backdrop" fetchpriority="high">
+        <img class="inset" src="img/greens.webp" width="360" height="440" alt="White flowers and fern in a glass jar">
+      </div>
+    </div>
+  </section>
+
+  <section id="morning">
+    <div class="wrap">
+      <div class="head reveal">
+        <h2>What the morning looks like</h2>
+        <p class="lede">You watch one arrangement come together, then build your own with a teacher close by. No experience needed.</p>
+      </div>
+      <div class="bento reveal">
+        <div class="cell c-schedule">
+          <ol class="schedule">
+            <li><time class="num" datetime="10:00">10:00</time><div><h3>Arrive and settle in</h3><p>Coffee, an apron, and a vessel you choose from the shelf.</p></div></li>
+            <li><time class="num" datetime="10:30">10:30</time><div><h3>Watch a demonstration</h3><p>How to cut and condition stems, then build shape, height and colour.</p></div></li>
+            <li><time class="num" datetime="11:15">11:15</time><div><h3>Make your own</h3><p>You work at your own pace. We step in whenever you ask.</p></div></li>
+            <li><time class="num" datetime="12:45">12:45</time><div><h3>Wrap it for the trip home</h3><p>We pack your arrangement and send you off with a care card.</p></div></li>
+          </ol>
+        </div>
+        <div class="cell c-wide"><img src="img/white-orchids.webp" width="780" height="280" loading="lazy" alt="A long, low arrangement of white orchids and eucalyptus"></div>
+        <div class="cell c-photo"><img src="img/pampas.webp" width="380" height="290" loading="lazy" alt="Dried pampas grass and protea in a tall arrangement"></div>
+        <div class="cell c-photo"><img src="img/branches.webp" width="380" height="290" loading="lazy" alt="Dark calla lilies and twisted branches in a black vase"></div>
+        <div class="cell c-incl">
+          <h3>Everything is provided</h3>
+          <p>Seasonal flowers, your vessel, tools and coffee are all in the price. The vessel is yours to keep.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dates, prices and seat counts below are sample content. Replace with the studio's real calendar. -->
+  <section id="dates">
+    <div class="wrap">
+      <div class="head reveal">
+        <h2>Upcoming workshops</h2>
+        <p class="lede">Each table seats eight. All workshops run from 10:00 to 13:00.</p>
+      </div>
+      <ol class="dates reveal">
+        <li>
+          <p class="d-day num">21 November<span>Saturday</span></p>
+          <div class="d-what"><h3>Dried grasses and protea</h3><p>A tall arrangement that keeps for months.</p></div>
+          <p class="d-seats num">3 seats left</p>
+          <p class="d-price num">$95</p>
+          <a class="btn btn-ghost btn-small" href="#book" data-date="2026-11-21" aria-label="Book a seat on Saturday 21 November">Book a seat</a>
+        </li>
+        <li>
+          <p class="d-day num">29 November<span>Sunday</span></p>
+          <div class="d-what"><h3>Branches and calla lilies</h3><p>Working with line and negative space.</p></div>
+          <p class="d-seats num">6 seats left</p>
+          <p class="d-price num">$95</p>
+          <a class="btn btn-ghost btn-small" href="#book" data-date="2026-11-29" aria-label="Book a seat on Sunday 29 November">Book a seat</a>
+        </li>
+        <li>
+          <p class="d-day num">5 December<span>Saturday</span></p>
+          <div class="d-what"><h3>Winter table centrepiece</h3><p>A low, wide arrangement for a dinner table.</p></div>
+          <p class="d-seats num">5 seats left</p>
+          <p class="d-price num">$120</p>
+          <a class="btn btn-ghost btn-small" href="#book" data-date="2026-12-05" aria-label="Book a seat on Saturday 5 December">Book a seat</a>
+        </li>
+        <li>
+          <p class="d-day num">13 December<span>Sunday</span></p>
+          <div class="d-what"><h3>Orchids and eucalyptus</h3><p>A simple arrangement in a glass vessel.</p></div>
+          <p class="d-seats num">8 seats left</p>
+          <p class="d-price num">$110</p>
+          <a class="btn btn-ghost btn-small" href="#book" data-date="2026-12-13" aria-label="Book a seat on Sunday 13 December">Book a seat</a>
+        </li>
+      </ol>
+      <p class="dates-note reveal">Prices are per person. You can move your seat to another date up to seven days before the workshop.</p>
+    </div>
+  </section>
+
+  <!-- Sample testimonials. Replace with real quotes and names before launch. -->
+  <section id="attendees">
+    <div class="wrap">
+      <div class="head reveal"><h2>What attendees say</h2></div>
+      <div class="voices reveal">
+        <img src="img/orchid.webp" width="360" height="360" loading="lazy" alt="A single dark purple orchid in a small glass vase">
+        <figure class="q-lg">
+          <blockquote><p>“I had never arranged anything before. I left with something I was proud to put on my table, and I knew why it worked.”</p></blockquote>
+          <figcaption><strong>Marit Oyelaran</strong>Attended in September, first workshop</figcaption>
+        </figure>
+        <figure class="q-sm">
+          <blockquote><p>“Calm, well paced, and nobody made me feel like a beginner.”</p></blockquote>
+          <figcaption><strong>Tomasz Brennagh</strong>Attended in October with his partner</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="book">
+    <div class="wrap">
+      <div class="book reveal">
+        <div class="head">
+          <h2>Request a seat</h2>
+          <p class="lede">Send your details and we will reply within one working day to confirm your seat and arrange payment.</p>
+        </div>
+
+        <!-- TODO: connect to the studio's booking endpoint. The script below only simulates sending. -->
+        <form id="book-form">
+          <div class="field">
+            <label for="f-name">Full name</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" required aria-describedby="e-name">
+            <span class="err" id="e-name" role="alert"></span>
+          </div>
+          <div class="field">
+            <label for="f-email">Email</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" required aria-describedby="h-email e-email">
+            <span class="help" id="h-email">We only use this to confirm your booking.</span>
+            <span class="err" id="e-email" role="alert"></span>
+          </div>
+          <div class="field">
+            <label for="f-date">Workshop</label>
+            <select id="f-date" name="date" required aria-describedby="e-date">
+              <option value="">Choose a date</option>
+              <option value="2026-11-21">Sat 21 November, Dried grasses and protea, $95</option>
+              <option value="2026-11-29">Sun 29 November, Branches and calla lilies, $95</option>
+              <option value="2026-12-05">Sat 5 December, Winter table centrepiece, $120</option>
+              <option value="2026-12-13">Sun 13 December, Orchids and eucalyptus, $110</option>
+            </select>
+            <span class="err" id="e-date" role="alert"></span>
+          </div>
+          <div class="field">
+            <label for="f-seats">Seats</label>
+            <select id="f-seats" name="seats" aria-describedby="h-seats">
+              <option value="1">1 seat</option>
+              <option value="2">2 seats</option>
+              <option value="3">3 seats</option>
+              <option value="4">4 seats</option>
+            </select>
+            <span class="help" id="h-seats">For five or more, tell us in the note.</span>
+          </div>
+          <div class="field full">
+            <label for="f-note">Note <span class="opt">(optional)</span></label>
+            <textarea id="f-note" name="note" aria-describedby="h-note"></textarea>
+            <span class="help" id="h-note">Allergies, access needs, or anything else we should know.</span>
+          </div>
+          <div class="form-foot">
+            <button class="btn btn-primary" type="submit" id="f-submit">Send request</button>
+            <p>No payment is taken now.</p>
+            <span class="err" id="e-form" role="alert"></span>
+          </div>
+        </form>
+
+        <div class="done" id="book-done" hidden tabindex="-1">
+          <h3>Thank you, your request is in.</h3>
+          <p id="done-text"></p>
+          <button class="btn btn-ghost" type="button" id="book-again">Request another seat</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-in">
+    <a class="brand" href="#top">Stem &amp; Vessel</a>
+    <p>Questions? <a href="mailto:hello@stemandvessel.example">hello@stemandvessel.example</a></p>
+    <p>The studio address is sent with your confirmation.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // Section reveals: IntersectionObserver only, no scroll listeners.
+  var reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    reveals.forEach(function (el) { io.observe(el); });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  var form = document.getElementById('book-form');
+  var done = document.getElementById('book-done');
+  var submit = document.getElementById('f-submit');
+  var dateSel = document.getElementById('f-date');
+  var formErr = document.getElementById('e-form');
+  form.noValidate = true; // native validation remains the fallback when JS is off
+
+  // A date row preselects that workshop in the form.
+  document.querySelectorAll('[data-date]').forEach(function (a) {
+    a.addEventListener('click', function () {
+      if (!done.hidden) reset();
+      dateSel.value = a.getAttribute('data-date');
+      setError(dateSel, 'e-date', '');
+    });
+  });
+
+  function setError(input, id, msg) {
+    document.getElementById(id).textContent = msg;
+    if (msg) input.setAttribute('aria-invalid', 'true'); else input.removeAttribute('aria-invalid');
+  }
+
+  var checks = [
+    ['f-name', 'e-name', function (v) { return v.trim() ? '' : 'Please enter your name.'; }],
+    ['f-email', 'e-email', function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Please enter a valid email address.'; }],
+    ['f-date', 'e-date', function (v) { return v ? '' : 'Please choose a workshop date.'; }]
+  ];
+  checks.forEach(function (c) {
+    var el = document.getElementById(c[0]);
+    el.addEventListener('blur', function () { if (el.hasAttribute('aria-invalid')) setError(el, c[1], c[2](el.value)); });
+  });
+
+  function reset() {
+    form.reset();
+    done.hidden = true;
+    form.hidden = false;
+  }
+  document.getElementById('book-again').addEventListener('click', function () {
+    reset();
+    document.getElementById('f-name').focus();
+  });
+
+  form.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    formErr.textContent = '';
+    var firstBad = null;
+    checks.forEach(function (c) {
+      var el = document.getElementById(c[0]);
+      var msg = c[2](el.value);
+      setError(el, c[1], msg);
+      if (msg && !firstBad) firstBad = el;
+    });
+    if (firstBad) { firstBad.focus(); return; }
+
+    if (navigator.onLine === false) {
+      formErr.textContent = 'You appear to be offline. Please try again when you are connected.';
+      return;
+    }
+
+    // Loading state. Replace the timeout with a real request to the booking endpoint.
+    submit.disabled = true;
+    submit.textContent = 'Sending';
+    setTimeout(function () {
+      submit.disabled = false;
+      submit.textContent = 'Send request';
+      var seats = document.getElementById('f-seats');
+      var label = dateSel.options[dateSel.selectedIndex].text.split(',').slice(0, 2).join(',');
+      document.getElementById('done-text').textContent =
+        seats.options[seats.selectedIndex].text + ' requested for ' + label +
+        '. We will email ' + document.getElementById('f-email').value.trim() + ' within one working day.';
+      form.hidden = true;
+      done.hidden = false;
+      done.focus();
+    }, 900);
+  });
+})();
+</script>
+</body>
+</html>
