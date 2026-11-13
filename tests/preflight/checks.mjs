@@ -200,8 +200,11 @@ export function probe({ desktop }) {
       const family = s.fontFamily.split(',')[0].trim().replace(/["']/g, '').toLowerCase();
       if (!fonts.has(family)) fonts.set(family, el);
     }
-    const glow = s.boxShadow !== 'none' && s.boxShadow.match(/^(.+?\)|#\w+|\w+)\s+(-?[\d.]+)px\s+(-?[\d.]+)px\s+([\d.]+)px/);
-    if (glow) {
+    // A glow is a centred, outward-spreading coloured shadow. An offset or a
+    // negative spread makes it a tinted drop shadow, which the skill allows.
+    const glow = s.boxShadow !== 'none' && s.boxShadow.match(/^(.+?\)|#\w+|\w+)\s+(-?[\d.]+)px\s+(-?[\d.]+)px\s+([\d.]+)px(?:\s+(-?[\d.]+)px)?/);
+    const centred = glow && Math.abs(Number(glow[2])) <= 2 && Math.abs(Number(glow[3])) <= 2 && Number(glow[5] || 0) >= 0;
+    if (centred) {
       const c = rgba(glow[1]);
       const saturated = Math.max(c[0], c[1], c[2]) - Math.min(c[0], c[1], c[2]) > 80;
       if (saturated && c[3] >= 0.3 && Number(glow[4]) >= 20) add('neon-glow', s.boxShadow.slice(0, 60), el);
@@ -273,8 +276,10 @@ export function probe({ desktop }) {
       if (ratio < need) add('cta-contrast', `contrast ${ratio.toFixed(2)}:1, needs ${need}:1`, b);
     }
     if (desktop && b.tagName !== 'INPUT' && lineCount(b) > 1) add('cta-wrap', `label wraps to ${lineCount(b)} lines`, b);
-    const radius = styleOf(b).borderTopLeftRadius;
-    if (!radii.has(radius)) radii.set(radius, b);
+    // Corner radius only shows on buttons that draw a box.
+    const bs = styleOf(b);
+    const boxed = rgba(bs.backgroundColor)[3] > 0 || (parseFloat(bs.borderTopWidth) > 0 && bs.borderTopStyle !== 'none');
+    if (boxed && !radii.has(bs.borderTopLeftRadius)) radii.set(bs.borderTopLeftRadius, b);
   }
   if (radii.size > 1) add('button-radius', `buttons use ${radii.size} radii: ${[...radii.keys()].join(', ')}`, [...radii.values()][1]);
 
