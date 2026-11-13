@@ -53,3 +53,12 @@ npm test
 
 `fixtures/pass.html` must pass every rule and `fixtures/fail.html` must trip
 every rule. Add a violation to `fail.html` whenever you add a rule.
+
+## CI
+
+`.github/workflows/preflight.yml` runs `npm test` on every pull request that
+touches `tests/preflight/`, then audits `fixtures/pass.html` and uploads the
+report and screenshots as the `preflight-report` artifact.
+
+To gate a real page, add a step after the build that serves it and runs
+`node preflight.mjs <url>`; the step fails when any hard rule fails.
