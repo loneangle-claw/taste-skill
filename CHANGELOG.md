@@ -10,6 +10,10 @@ All notable changes to taste-skill live here. The repo follows SemVer-ish discip
 
 - `taste-skill` (install name `design-taste-frontend`) is now **v2 (experimental)**. The previous v1 is preserved as `taste-skill-v1` (install name `design-taste-frontend-v1`).
 - New `CHANGELOG.md` (this file).
+- `taste-skill` §9.G: the em-dash ban now states that the CJK wave dash `～` used for ranges is allowed. A blind redesign of a Traditional Chinese page had turned `11/28（六）～11/29（日）` into a hyphen range.
+- New `tests/preflight/`: a Playwright audit that checks a rendered page against the 34 measurable rules of the Pre-Flight Check, in desktop light, desktop dark, mobile and reduced motion. Runs in CI.
+- New `examples/blind-trials/`: four pages generated from `taste-skill` alone (workshop landing, SaaS landing, photographer portfolio, course page redesign). They double as regression tests for the audit.
+- New `README.zh-TW.md`: Traditional Chinese README, linked from the language switch at the top of both READMEs.
 
 ---
 
