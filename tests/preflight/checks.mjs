@@ -28,6 +28,7 @@ export const RULES = [
   { id: 'broken-image', section: '9.E', severity: 'fail', title: 'No broken images' },
   { id: 'scroll-listener', section: '5.D', severity: 'fail', title: 'No window scroll listeners' },
   { id: 'reduced-motion', section: '6.B', severity: 'fail', title: 'Infinite animations stop under prefers-reduced-motion' },
+  { id: 'stuck-invisible', section: '5.C', severity: 'fail', title: 'No content left invisible after scrolling the whole page' },
   { id: 'page-error', section: '9.E', severity: 'fail', title: 'No uncaught JavaScript errors' },
   { id: 'inter-default', section: '4.1', severity: 'warn', title: 'Inter is not the default font' },
   { id: 'emoji', section: '3.D', severity: 'warn', title: 'No emoji in visible text' },
@@ -133,6 +134,16 @@ export function probe({ desktop }) {
 
   const segmenter = new Intl.Segmenter(undefined, { granularity: 'word' });
   const wordCount = (text) => [...segmenter.segment(text)].filter((s) => s.isWordLike).length;
+
+  // Reveal-on-scroll content that never appeared. Checked before the visibility
+  // filter below, which would otherwise hide it from every other rule.
+  for (const el of document.body.querySelectorAll('*')) {
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0 || !el.innerText?.trim() || el.closest('[aria-hidden="true"]')) continue;
+    if (Number(styleOf(el).opacity) === 0 && Number(styleOf(el.parentElement).opacity) !== 0) {
+      add('stuck-invisible', 'opacity is still 0', el);
+    }
+  }
 
   const all = [document.body, ...document.body.querySelectorAll('*')].filter(
     (el) => !['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEMPLATE'].includes(el.tagName) && visible(el),

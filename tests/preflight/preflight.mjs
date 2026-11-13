@@ -20,18 +20,24 @@ const VIEWS = [
 
 const toUrl = (target) => (/^[a-z]+:\/\//i.test(target) ? target : pathToFileURL(path.resolve(target)).href);
 
-// Scroll through the page so scroll-triggered reveals have fired before we measure.
+// Scroll through the page so scroll-triggered reveals fire, then wait for
+// their transitions to finish before anything is measured or captured.
 async function settle(page) {
   await page.evaluate(async () => {
-    const step = window.innerHeight;
-    for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
-      window.scrollTo(0, y);
-      await new Promise((r) => setTimeout(r, 60));
+    const frame = () => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 50)));
+    for (let y = 0; y < document.documentElement.scrollHeight; y += window.innerHeight / 2) {
+      window.scrollTo({ top: y, behavior: 'instant' });
+      await frame();
     }
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    await frame();
+    const finite = document.getAnimations().filter((a) => a.effect?.getComputedTiming().iterations !== Infinity);
+    await Promise.race([
+      Promise.allSettled(finite.map((a) => a.finished)),
+      new Promise((r) => setTimeout(r, 5000)),
+    ]);
     await document.fonts.ready;
   });
-  await page.waitForTimeout(400);
 }
 
 export async function audit(target, { outDir } = {}) {
