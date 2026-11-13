@@ -23,7 +23,7 @@ desktop with `prefers-reduced-motion: reduce`.
 
 ## What it checks
 
-33 rules, listed with their SKILL.md section in `checks.mjs`. In short:
+34 rules, listed with their SKILL.md section in `checks.mjs`. In short:
 
 - **Copy**: em-dashes, filler verbs, generic names, scroll cues, step labels, emoji.
 - **Layout**: horizontal overflow, nav height and wrapping, hero headline lines,
@@ -31,7 +31,7 @@ desktop with `prefers-reduced-motion: reduce`.
 - **Contrast**: button text, form text, placeholders, and labels against WCAG AA,
   in both light and dark mode.
 - **Style bans**: banned fonts, pure black, gradient headlines, custom cursors,
-  neon glows, mixed button radii.
+  neon glows, mixed button radii, the banned beige and brass palette.
 - **Behaviour**: content stuck invisible after scrolling, window scroll listeners, animations that keep looping under
   reduced motion, uncaught JS errors, broken images, missing dark mode.
 

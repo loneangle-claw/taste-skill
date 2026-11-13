@@ -30,6 +30,7 @@ export const RULES = [
   { id: 'reduced-motion', section: '6.B', severity: 'fail', title: 'Infinite animations stop under prefers-reduced-motion' },
   { id: 'stuck-invisible', section: '5.C', severity: 'fail', title: 'No content left invisible after scrolling the whole page' },
   { id: 'page-error', section: '9.E', severity: 'fail', title: 'No uncaught JavaScript errors' },
+  { id: 'premium-palette', section: '4.2', severity: 'warn', title: 'Not the banned beige, brass and espresso palette' },
   { id: 'inter-default', section: '4.1', severity: 'warn', title: 'Inter is not the default font' },
   { id: 'emoji', section: '3.D', severity: 'warn', title: 'No emoji in visible text' },
   { id: 'neon-glow', section: '9.A', severity: 'warn', title: 'No neon outer glows' },
@@ -206,6 +207,27 @@ export function probe({ desktop }) {
       if (saturated && c[3] >= 0.3 && Number(glow[4]) >= 20) add('neon-glow', s.boxShadow.slice(0, 60), el);
     }
   }
+  // Exact hex values the skill bans as the default premium-consumer palette.
+  const bannedHex = [
+    '#f5f1ea', '#f7f5f1', '#fbf8f1', '#efeae0', '#ece6db', '#faf7f1', '#e8dfcb',
+    '#b08947', '#b6553a', '#9a2436', '#9c6e2a', '#bc7c3a', '#7d5621',
+    '#1a1714', '#1a1814', '#1b1814',
+  ];
+  const hex = ([r, g, b]) => '#' + [r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('');
+  const paletteHits = new Map();
+  for (const el of all) {
+    const s = styleOf(el);
+    const used = [s.backgroundColor, s.borderTopColor, s.borderLeftColor];
+    if (hasOwnText(el)) used.push(s.color);
+    for (const c of used) {
+      const v = rgba(c);
+      if (v[3] < 1) continue;
+      const h = hex(v);
+      if (bannedHex.includes(h) && !paletteHits.has(h)) paletteHits.set(h, el);
+    }
+  }
+  for (const [h, el] of paletteHits) add('premium-palette', `uses ${h}`, el);
+
   if (blackCount) add('pure-black', `${blackCount} element(s) use #000000`, blackExample);
   for (const [family, el] of fonts) {
     if (family === 'fraunces' || family === 'instrument serif') add('banned-font', family, el);

@@ -48,7 +48,8 @@ export async function audit(target, { outDir } = {}) {
   const record = (view, f) => {
     const key = `${f.rule}|${f.message}|${f.where}`;
     if (!found.has(key)) found.set(key, { ...f, views: [] });
-    found.get(key).views.push(view);
+    const views = found.get(key).views;
+    if (!views.includes(view)) views.push(view);
   };
 
   try {
